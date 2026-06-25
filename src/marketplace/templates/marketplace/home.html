@@ -1,0 +1,128 @@
+{% extends 'marketplace/base.html' %}
+
+{% block title %}Home - Bristol Food Network{% endblock %}
+
+{% block content %}
+    <div class="home-page">
+        <section class="home-hero">
+            <h1>Welcome to the Bristol Regional Food Network</h1>
+            <p>Connecting local producers and customers across the Bristol area.</p>
+        </section>
+
+        {% if user.is_authenticated and is_producer and producer_home_data %}
+            <section class="home-panel">
+                <h2>Producer Snapshot</h2>
+                <div class="home-kpi-grid">
+                    <article class="home-kpi-card">
+                        <p class="home-kpi-label">Products Listed</p>
+                        <p class="home-kpi-value">{{ producer_home_data.product_count }}</p>
+                    </article>
+                    <article class="home-kpi-card">
+                        <p class="home-kpi-label">Pending Orders</p>
+                        <p class="home-kpi-value">{{ producer_home_data.pending_orders_count }}</p>
+                    </article>
+                    <article class="home-kpi-card">
+                        <p class="home-kpi-label">Low Stock Items</p>
+                        <p class="home-kpi-value">{{ producer_home_data.low_stock_count }}</p>
+                    </article>
+                </div>
+
+                <div class="home-quick-actions">
+                    <a href="{% url 'add_product' %}" class="home-action-button">Add or Manage Products</a>
+                    <a href="{% url 'producer_orders' %}" class="home-action-button">Review Incoming Orders</a>
+                    <a href="{% url 'payment_settlements' %}" class="home-action-button">View Settlements</a>
+                </div>
+            </section>
+
+            <section class="home-panel">
+                <h2>Recent Order Activity</h2>
+                {% if producer_home_data.recent_orders %}
+                    <ul class="home-list">
+                        {% for order in producer_home_data.recent_orders %}
+                            <li>
+                                Order #{{ order.id }} from {{ order.customer.name }} • {{ order.created_at|date:"d M Y" }} • {{ order.get_status_display }}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="home-muted">No incoming orders yet.</p>
+                {% endif %}
+            </section>
+
+            <section class="home-panel">
+                <h2>Latest Customer Feedback</h2>
+                {% if producer_home_data.recent_reviews %}
+                    <ul class="home-list">
+                        {% for review in producer_home_data.recent_reviews %}
+                            <li>
+                                {{ review.product.name }} • {{ review.rating }}/5 by {{ review.customer.name }}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="home-muted">No reviews yet. Reviews will appear here after customer purchases.</p>
+                {% endif %}
+            </section>
+        {% elif user.is_authenticated and is_customer and customer_home_data %}
+            <section class="home-panel">
+                <h2>Customer Snapshot</h2>
+                <div class="home-kpi-grid">
+                    <article class="home-kpi-card">
+                        <p class="home-kpi-label">Products In Market</p>
+                        <p class="home-kpi-value">{{ customer_home_data.market_product_count }}</p>
+                    </article>
+                    <article class="home-kpi-card">
+                        <p class="home-kpi-label">Basket Lines</p>
+                        <p class="home-kpi-value">{{ customer_home_data.basket_lines }}</p>
+                    </article>
+                    <article class="home-kpi-card">
+                        <p class="home-kpi-label">Active Recurring Orders</p>
+                        <p class="home-kpi-value">{{ customer_home_data.active_recurring_count }}</p>
+                    </article>
+                </div>
+
+                <div class="home-quick-actions">
+                    <a href="{% url 'customer_market' %}" class="nav-link">Browse Market</a>
+                    <a href="{% url 'view_basket' %}" class="nav-link">Open Basket</a>
+                    <a href="{% url 'manage_recurring_orders' %}" class="nav-link">Manage Recurring Orders</a>
+                </div>
+            </section>
+
+            <section class="home-panel">
+                <h2>Recent Orders</h2>
+                {% if customer_home_data.recent_orders %}
+                    <ul class="home-list">
+                        {% for order in customer_home_data.recent_orders %}
+                            <li>
+                                Order #{{ order.id }} • {{ order.created_at|date:"d M Y" }} • Total £{{ order.total_price }} • {{ order.get_status_display }}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="home-muted">You have not placed any orders yet.</p>
+                {% endif %}
+            </section>
+
+            <section class="home-panel">
+                <h2>Last Delivery</h2>
+                {% if customer_home_data.last_order %}
+                    <p>
+                        Your most recent order was delivered to {{ customer_home_data.last_order.delivery_address }}
+                        with preferred date {{ customer_home_data.last_order.preferred_delivery_date|date:"d M Y" }}.
+                    </p>
+                {% else %}
+                    <p class="home-muted">Once you place an order, a quick delivery summary will appear here.</p>
+                {% endif %}
+            </section>
+        {% else %}
+            <section class="home-panel">
+                <h2>Get Started</h2>
+                <p>Sign up as a producer to list local products, or as a customer to browse and order from the market.</p>
+                <div class="home-quick-actions">
+                    <a href="{% url 'signup_choice' %}" class="nav-link">Create Account</a>
+                    <a href="{% url 'login' %}" class="nav-link">Log In</a>
+                </div>
+            </section>
+        {% endif %}
+    </div>
+{% endblock %}

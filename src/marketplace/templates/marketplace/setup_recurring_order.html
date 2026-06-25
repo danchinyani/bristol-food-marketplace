@@ -1,0 +1,165 @@
+{% extends 'marketplace/base.html' %}
+
+{% block title %}Set Up Recurring Order - Bristol Food Network{% endblock %}
+
+{% block content %}
+<div class="basket-page-container">
+    <h2 class="auth-title">Set Up Recurring Order</h2>
+    <p class="auth-subtitle">Confirm your basket items and choose how often we should repeat this order.</p>
+
+    {% if messages %}
+        <div class="market-messages">
+            {% for message in messages %}
+                <p class="market-message market-message--{{ message.tags }}">{{ message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="basket-panel">
+        <table class="basket-table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Producer</th>
+                    <th>Quantity</th>
+                    <th>Unit Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in basket_items %}
+                    <tr>
+                        <td>{{ item.product.name }}</td>
+                        <td>{{ item.product.producer.business_name }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>£{{ item.product.price }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="basket-checkout-panel">
+        <h3 class="basket-checkout-title">Recurring Order Details</h3>
+        <p class="auth-subtitle">This legacy page is still supported, but the same recurring settings are now also available directly during checkout.</p>
+
+        <form class="auth-form" method="post">
+            {% csrf_token %}
+
+            <div class="auth-field-group">
+                <label class="auth-label" for="frequency">Frequency</label>
+                <select name="frequency" id="frequency" class="auth-field" required>
+                    {% for value, label in frequency_choices %}
+                        <option value="{{ value }}">{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="basket-card-row">
+                <div class="auth-field-group basket-card-half">
+                    <label class="auth-label" for="recurrence_day">Recurrence Day</label>
+                    <select name="recurrence_day" id="recurrence_day" class="auth-field" required>
+                        {% for value, label in weekday_choices %}
+                            <option value="{{ value }}" {% if value == 0 %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="auth-field-group basket-card-half">
+                    <label class="auth-label" for="delivery_day">Recurring Delivery Day</label>
+                    <select name="delivery_slot" id="delivery_day" class="auth-field" required>
+                        {% for value, label in delivery_slot_choices %}
+                            <option value="{{ value }}" {% if value == '0:2' %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="auth-field-group">
+                <label class="auth-label" for="next_order_date">First Delivery Date</label>
+                <input
+                    type="date"
+                    id="next_order_date"
+                    class="auth-field"
+                    min="{{ min_date }}"
+                    value="{{ prefilled_first_delivery_date }}"
+                    disabled
+                >
+                <input type="hidden" name="locked_next_order_date" value="{{ prefilled_first_delivery_date }}">
+                
+            </div>
+
+            <div class="auth-field-group">
+                <label class="auth-label" for="delivery_address">Delivery Address</label>
+                <input
+                    type="text"
+                    name="delivery_address"
+                    id="delivery_address"
+                    class="auth-field"
+                    value="{{ delivery_address }}"
+                    required
+                >
+            </div>
+
+            <button type="submit" class="auth-submit-btn">Confirm Recurring Order</button>
+            <p class="auth-footer-text">
+                <a href="{% url 'view_basket' %}">Cancel and return to basket</a>
+            </p>
+        </form>
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const recurrenceDay = document.getElementById('recurrence_day');
+        const deliveryDay = document.getElementById('delivery_day');
+        const weekdayLabels = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+        if (!recurrenceDay || !deliveryDay) return;
+
+        function buildOptions(recurrenceDayValue) {
+            const recurrenceDayInt = parseInt(recurrenceDayValue || '0', 10);
+            const options = [];
+
+            for (let weekOffset = 0; weekOffset <= 1; weekOffset += 1) {
+                for (let weekday = 0; weekday < weekdayLabels.length; weekday += 1) {
+                    const gap = weekOffset === 0
+                        ? weekday - recurrenceDayInt
+                        : (7 - recurrenceDayInt) + weekday;
+
+                    if (gap >= 2) {
+                        const prefix = weekOffset === 0 ? 'Same week' : 'Next week';
+                        options.push({
+                            value: `${weekOffset}:${weekday}`,
+                            label: `${prefix} - ${weekdayLabels[weekday]}`,
+                        });
+                    }
+                }
+            }
+
+            return options;
+        }
+
+        function updateDeliveryOptions() {
+            const currentValue = deliveryDay.value;
+            const options = buildOptions(recurrenceDay.value);
+            deliveryDay.innerHTML = '';
+
+            options.forEach(function (optionData) {
+                const option = document.createElement('option');
+                option.value = optionData.value;
+                option.textContent = optionData.label;
+                if (optionData.value === currentValue) {
+                    option.selected = true;
+                }
+                deliveryDay.appendChild(option);
+            });
+
+            if (!deliveryDay.value && options.length > 0) {
+                deliveryDay.value = options[0].value;
+            }
+        }
+
+        updateDeliveryOptions();
+        recurrenceDay.addEventListener('change', updateDeliveryOptions);
+    });
+</script>
+{% endblock %}

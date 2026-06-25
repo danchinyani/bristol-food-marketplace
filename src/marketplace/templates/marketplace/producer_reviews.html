@@ -1,0 +1,49 @@
+{% extends 'marketplace/base.html' %}
+
+{% block title %}Customer Reviews - Bristol Food Network{% endblock %}
+
+{% block content %}
+<div class="producer-reviews-page">
+    <h2 class="auth-title">Customer Reviews</h2>
+    <p class="auth-subtitle">Feedback left by customers for your products.</p>
+
+    {% if reviews %}
+        <div class="producer-reviews-list">
+            {% for review in reviews %}
+                <article class="producer-review-card">
+                    <div class="producer-review-header">
+                        <h3 class="producer-review-product">{{ review.product.name }}</h3>
+                        <span class="producer-review-rating">{{ review.rating }}/5</span>
+                    </div>
+
+                    <p class="producer-review-meta">
+                        <strong>Customer:</strong>
+                        {% if review.is_anonymous %}
+                            Anonymous customer
+                        {% else %}
+                            {{ review.customer.name }}
+                        {% endif %}
+                    </p>
+                    <p class="producer-review-meta">
+                        <strong>Order #:</strong> {{ review.order_item.order.id }}
+                    </p>
+                    <p class="producer-review-meta">
+                        <strong>Reviewed:</strong> {{ review.created_at|date:"d M Y, H:i" }}
+                    </p>
+
+                    {% if review.comment %}
+                        <p class="producer-review-comment">{{ review.comment }}</p>
+                    {% else %}
+                        <p class="producer-review-comment producer-review-comment-empty">No written comment provided.</p>
+                    {% endif %}
+                </article>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="producer-empty-state">
+            <p>No customer reviews yet.</p>
+            <p>Reviews will appear here after customers review purchased products.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

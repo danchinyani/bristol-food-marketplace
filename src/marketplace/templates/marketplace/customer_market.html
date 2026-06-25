@@ -1,0 +1,393 @@
+{% extends 'marketplace/base.html' %}
+
+{% block title %}Market - Bristol Food Network{% endblock %}
+
+{% block content %}
+<div class="registration-container producer-action-container">
+    <h2 class="auth-title">Market</h2>
+    <p class="auth-subtitle">Browse all listings from producers across the network.</p>
+
+
+    <!-- MARKET FILTER FORM - USES GET SO FILTERS ARE VISIBLE IN THE URL -->
+    <div class="producer-panel market-filter-panel">
+        <form method="get" action="{% url 'customer_market' %}" class="market-filter-form">
+            <!-- PRODUCT NAME SEARCH FILTER -->
+            <div class="market-filter-field market-filter-field--full">
+                <label class="auth-label" for="search">Search by Product Name</label>
+                <input
+                    class="auth-field"
+                    type="text"
+                    name="search"
+                    id="search"
+                    value="{{ selected_filters.search }}"
+                    placeholder="e.g. tomatoes"
+                >
+            </div>
+
+            <!-- MINIMUM PRICE FILTER -->
+            <div class="market-filter-field">
+                <label class="auth-label" for="min_price">Min Price (£)</label>
+                <input
+                    class="auth-field"
+                    type="number"
+                    name="min_price"
+                    id="min_price"
+                    min="0"
+                    step="0.01"
+                    value="{{ selected_filters.min_price }}"
+                    placeholder="0.00"
+                >
+            </div>
+
+            <!-- MAXIMUM PRICE FILTER -->
+            <div class="market-filter-field">
+                <label class="auth-label" for="max_price">Max Price (£)</label>
+                <input
+                    class="auth-field"
+                    type="number"
+                    name="max_price"
+                    id="max_price"
+                    min="0"
+                    step="0.01"
+                    value="{{ selected_filters.max_price }}"
+                    placeholder="100.00"
+                >
+            </div>
+
+            <!-- ORGANIC STATUS FILTER -->
+            <div class="market-filter-field">
+                <label class="auth-label" for="organic">Organic</label>
+                <select class="auth-field" name="organic" id="organic">
+                    <option value="all" {% if selected_filters.organic == 'all' %}selected{% endif %}>All</option>
+                    <option value="true" {% if selected_filters.organic == 'true' %}selected{% endif %}>Organic Only</option>
+                    <option value="false" {% if selected_filters.organic == 'false' %}selected{% endif %}>Non-Organic Only</option>
+                </select>
+            </div>
+
+            <!-- PRODUCT CATEGORY FILTER -->
+            <div class="market-filter-field">
+                <label class="auth-label" for="category">Category</label>
+                <select class="auth-field" name="category" id="category">
+                    <option value="">All Categories</option>
+                    {% for category_code, category_label in category_choices %}
+                        <option value="{{ category_code }}" {% if selected_filters.category == category_code %}selected{% endif %}>
+                            {{ category_label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- SEASON AVAILABILITY RANGE FILTER -->
+            <div class="market-filter-field">
+                <label class="auth-label" for="season_from">Season From</label>
+                <select class="auth-field" name="season_from" id="season_from">
+                    <option value="">Any</option>
+                    {% for season_code, season_label in season_choices %}
+                        <option value="{{ season_code }}" {% if selected_filters.season_from == season_code %}selected{% endif %}>
+                            {{ season_label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="market-filter-field">
+                <label class="auth-label" for="season_to">Season To</label>
+                <select class="auth-field" name="season_to" id="season_to">
+                    <option value="">Any</option>
+                    {% for season_code, season_label in season_choices %}
+                        <option value="{{ season_code }}" {% if selected_filters.season_to == season_code %}selected{% endif %}>
+                            {{ season_label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- ALLERGEN FILTERS - SELECT ONE AT A TIME, REOPEN TO ADD MORE EXCLUDED ALLERGENS -->
+            <div class="market-filter-field market-filter-field--full">
+                <label class="auth-label" for="allergen-picker">Exclude Allergens</label>
+                <select class="auth-field allergen-picker-select" id="allergen-picker" data-allergen-dropdown>
+                    <option value="">Select allergen</option>
+                    {% for allergen_code, allergen_label in allergen_choices %}
+                        <option value="{{ allergen_code }}">
+                            {{ allergen_label }}
+                        </option>
+                    {% endfor %}
+                </select>
+
+                <small class="field-help-text producer-field-help-text">
+                    Select one allergen at a time. Reopen the dropdown to add another exclusion.
+                </small>
+
+                <div class="allergen-selected-list" data-selected-list>
+                    {% for selected_code in selected_filters.allergens %}
+                        {% for allergen_code, allergen_label in allergen_choices %}
+                            {% if allergen_code == selected_code %}
+                                <span class="allergen-chip" data-allergen-chip="{{ allergen_code }}">
+                                    {{ allergen_label }}
+                                    <button type="button" class="allergen-chip-remove" data-remove-allergen="{{ allergen_code }}">×</button>
+                                </span>
+                                <input type="hidden" name="allergens" value="{{ allergen_code }}" data-hidden-allergen="{{ allergen_code }}">
+                            {% endif %}
+                        {% endfor %}
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- FILTER ACTION BUTTONS -->
+            <div class="market-filter-actions">
+                <button type="submit" class="add-to-basket-btn">Apply Filters</button>
+                <a href="{% url 'customer_market' %}" class="market-filter-reset">Clear</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- DISPLAY DJANGO MESSAGES (E.G. BASKET FEEDBACK) AT THE TOP OF THE PAGE -->
+    {% if messages %}
+        <div class="market-messages">
+            {% for message in messages %}
+                <p class="market-message market-message--{{ message.tags }}">{{ message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="producer-panel producer-gallery-panel">
+        <div class="producer-product-list">
+            {% for entry in products_with_miles %}
+                {% with product=entry.product food_miles=entry.food_miles %}
+                <article class="producer-product-card">
+                    <div class="producer-product-header">
+                        <h3>{{ product.name }}</h3>
+{% if product.is_surplus and product.discount_percent > 0 %}
+    <span class="producer-product-price">
+        <span class="old-price">£{{ product.price }}</span>
+        <span class="discounted-price">£{{ product.discounted_price|floatformat:2 }}</span> / {{ product.unit }}
+    </span>
+    <p class="producer-product-meta">
+        <strong>Surplus Offer:</strong> {{ product.discount_percent }}% off to reduce food waste
+    </p>
+{% else %}
+    <span class="producer-product-price">£{{ product.price }} / {{ product.unit }}</span>
+{% endif %}
+    <p class="producer-product-meta">
+        <strong>Rating:</strong>
+        {% if product.review_count %}
+            ⭐ {{ product.avg_rating|floatformat:1 }} / 5
+            ({{ product.review_count }} review{{ product.review_count|pluralize }})
+        {% else %}
+            No reviews yet
+        {% endif %}
+    </p>
+    <button type="button"
+            class="nav-link"
+            style="border:none; background:none; padding:0; cursor:pointer;"
+            onclick="openReviewsModal('reviews-{{ product.id }}')">
+        View reviews
+    </button>
+                    </div>
+
+                    {% if product.image %}
+                        <div class="product-image-container" style="margin: 15px 0;">
+                            <img src="{{ product.image.url }}" alt="Image of {{ product.name }}" style="max-width: 100%; height: 200px; object-fit: cover; border-radius: 8px;">
+                        </div>
+                    {% endif %}
+
+                    <!-- FOOD MILES BADGE - TC-013 -->
+                    {% if food_miles is not None %}
+                        <p class="producer-product-meta">
+                             <strong>Food Miles:</strong>
+                            <span class="food-miles-badge {% if food_miles <= 20 %}food-miles-low{% else %}food-miles-high{% endif %}">
+                                {{ food_miles }} miles
+                            </span>
+                            {% if food_miles <= 20 %}
+                                 Within 20-mile network radius
+                            {% endif %}
+                        </p>
+                    {% endif %}
+
+                    <p class="producer-product-meta">
+                        <strong>Category:</strong> {{ product.get_category_display }}
+                    </p>
+                    <p class="producer-product-meta">
+                        <!-- SHOW REMAINING STOCK SO CUSTOMERS KNOW HOW MUCH IS AVAILABLE -->
+                        <strong>Stock:</strong> {{ product.stock_quantity }}
+                    </p>
+                    <p class="producer-product-meta">
+                        <strong>Organic:</strong>
+                        {% if product.is_organic %}
+                            Yes
+                        {% else %}
+                            No
+                        {% endif %}
+                    </p>
+                    <p class="producer-product-meta">
+                        <strong>Seasonal Availability:</strong> {{ product.get_seasonal_from_display }} to {{ product.get_seasonal_to_display }}
+                    </p>
+                    <p class="producer-product-meta">
+                        <strong>Producer:</strong>
+                        <a href="{% url 'producer_bio_public' product.producer.id %}" class="producer-bio-link">{{ product.producer.business_name }}</a>
+                    </p>
+                    <p class="producer-product-meta">
+                        <strong>Address:</strong> {{ product.producer.business_address }}, {{ product.producer.postcode }}
+                    </p>
+                    <p class="producer-product-description">{{ product.description }}</p>
+
+                    {% if product.allergens %}
+                        <p class="producer-product-allergens">
+                            <strong>Allergens:</strong>
+                            {% for allergen_label in product.get_allergen_labels %}
+                                {{ allergen_label }}{% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                        </p>
+                    {% endif %}
+
+                    <!-- ADD TO BASKET FORM - ONLY SHOWN WHEN PRODUCT IS IN STOCK -->
+                    {% if product.stock_quantity > 0 %}
+                        <form class="add-to-basket-form" method="post" action="{% url 'add_to_basket' product.id %}">
+                            {% csrf_token %}
+                            <!-- QUANTITY SELECTOR - CONSTRAINED TO AVAILABLE STOCK -->
+                            <label class="add-to-basket-label" for="qty-{{ product.id }}">Qty:</label>
+                            <input
+                                class="add-to-basket-qty"
+                                type="number"
+                                id="qty-{{ product.id }}"
+                                name="quantity"
+                                value="1"
+                                min="1"
+                                max="{{ product.stock_quantity }}"
+                            >
+                            <!-- ADD BUTTON - SUBMITS THE FORM TO ADD THE PRODUCT TO THE BASKET -->
+                            <button class="add-to-basket-btn" type="submit">+ Add</button>
+                        </form>
+                    {% else %}
+                        <!-- OUT OF STOCK INDICATOR - SHOWN WHEN NO STOCK REMAINS -->
+                        <p class="out-of-stock-label">Out of stock</p>
+                    {% endif %}
+                    <div id="reviews-{{ product.id }}"
+                        style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:9999; padding:40px; overflow:auto;">
+
+                        <div style="background:white; max-width:650px; margin:40px auto; padding:24px; border-radius:10px; border:1px solid #c8e6c9;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; gap:20px;">
+                                <h2 style="margin:0; color:#2e7d32;">Reviews for {{ product.name }}</h2>
+                                <button type="button"
+                                    onclick="closeReviewsModal('reviews-{{ product.id }}')"
+                                    style="border:none; background:#fff0f0; color:#8f1f1f; padding:6px 12px; border-radius:5px; cursor:pointer;">
+                ✕
+                                </button>
+                            </div>
+
+                            <hr>
+
+                            {% if product.reviews.all %}
+                                {% for review in product.reviews.all %}
+                                    <div style="border:1px solid #c8e6c9; border-radius:8px; padding:14px; margin-bottom:12px;">
+                                        <p style="margin-top:0;">
+                                            <strong>
+                                                {% if review.is_anonymous %}
+                                                    Anonymous customer
+                                                {% else %}
+                                                    {{ review.customer.name }}
+                                                {% endif %}
+                                            </strong>
+                                            — ⭐ {{ review.rating }}/5
+                                        </p>
+
+                                        {% if review.comment %}
+                                            <p>{{ review.comment }}</p>
+                                        {% else %}
+                                            <p style="color:#777; font-style:italic;">No written comment provided.</p>
+                                        {% endif %}
+
+                                        <small style="color:#666;">{{ review.created_at|date:"d M Y, H:i" }}</small>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <p>No reviews yet for this product.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </article>
+                {% endwith %}
+            {% empty %}
+                <div class="producer-empty-state">
+                    <p>No products match the current filters.</p>
+                    <p>Try widening your filters or clear them to see all products.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+// CUSTOMER ALLERGEN FILTER PICKER - ADDS ONE EXCLUSION PER DROPDOWN SELECTION
+(function () {
+    // GET THE DROPDOWN AND SELECTED EXCLUSION TAG CONTAINER
+    var dropdown = document.querySelector('[data-allergen-dropdown]');
+    var selectedList = document.querySelector('[data-selected-list]');
+
+    if (!dropdown || !selectedList) {
+        return;
+    }
+
+    // ADD A NEW EXCLUDED ALLERGEN AS A TAG + HIDDEN INPUT FOR GET FILTERING
+    function addAllergen(code, label) {
+        if (!code) {
+            return;
+        }
+
+        // SKIP DUPLICATES IF THIS ALLERGEN IS ALREADY IN THE EXCLUSION LIST
+        if (selectedList.querySelector('[data-hidden-allergen="' + code + '"]')) {
+            return;
+        }
+
+        var chip = document.createElement('span');
+        chip.className = 'allergen-chip';
+        chip.setAttribute('data-allergen-chip', code);
+        chip.innerHTML = label + ' <button type="button" class="allergen-chip-remove" data-remove-allergen="' + code + '">×</button>';
+
+        var hiddenInput = document.createElement('input');
+        hiddenInput.type = 'hidden';
+        hiddenInput.name = 'allergens';
+        hiddenInput.value = code;
+        hiddenInput.setAttribute('data-hidden-allergen', code);
+
+        selectedList.appendChild(chip);
+        selectedList.appendChild(hiddenInput);
+    }
+
+    dropdown.addEventListener('change', function () {
+        // ADD THE NEW EXCLUSION THEN RESET THE DROPDOWN PLACEHOLDER
+        var selectedCode = dropdown.value;
+        var selectedLabel = dropdown.options[dropdown.selectedIndex].text;
+        addAllergen(selectedCode, selectedLabel);
+        dropdown.value = '';
+    });
+
+    selectedList.addEventListener('click', function (event) {
+        // REMOVE TAG + HIDDEN INPUT WHEN THE USER CLICKS THE X BUTTON
+        if (!event.target.matches('[data-remove-allergen]')) {
+            return;
+        }
+
+        var code = event.target.getAttribute('data-remove-allergen');
+        var chip = selectedList.querySelector('[data-allergen-chip="' + code + '"]');
+        var hiddenInput = selectedList.querySelector('[data-hidden-allergen="' + code + '"]');
+
+        if (chip) {
+            chip.remove();
+        }
+        if (hiddenInput) {
+            hiddenInput.remove();
+        }
+    });
+})();
+</script>
+<script>
+function openReviewsModal(id) {
+    document.getElementById(id).style.display = 'block';
+}
+
+function closeReviewsModal(id) {
+    document.getElementById(id).style.display = 'none';
+}
+</script>
+{% endblock %}

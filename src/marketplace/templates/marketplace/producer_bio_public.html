@@ -1,0 +1,40 @@
+{% extends 'marketplace/base.html' %}
+
+{% block title %}{{ producer.business_name }} - Bristol Food Network{% endblock %}
+
+{% block content %}
+<div class="registration-container producer-bio-container">
+    <h2 class="auth-title">{{ producer.business_name }}</h2>
+
+    <div class="producer-panel producer-bio-info-panel">
+        <p class="producer-product-meta"><strong>Address:</strong> {{ producer.business_address }}, {{ producer.postcode }}</p>
+        <p class="producer-product-meta producer-bio-last-meta"><strong>Email:</strong> {{ producer.email }}</p>
+    </div>
+
+    <p>Local producer profile</p>
+
+    <p class="producer-product-meta">
+        <strong>Rating:</strong>
+        {% if producer_avg_rating %}
+            ⭐ {{ producer_avg_rating|floatformat:1 }} / 5
+            ({{ producer_review_count }} review{{ producer_review_count|pluralize }})
+        {% else %}
+            No reviews yet
+        {% endif %}
+    </p>
+
+    <p><strong>Address:</strong> {{ producer.business_address }}, {{ producer.postcode }}</p>
+
+    <div class="producer-panel producer-bio-text-panel">
+        {% if producer.bio %}
+            <p class="producer-bio-text">{{ producer.bio }}</p>
+        {% else %}
+            <p class="producer-bio-empty">This producer has not added a bio yet.</p>
+        {% endif %}
+    </div>
+
+    <p class="auth-footer-text producer-footer-text">
+        <a href="{% url 'customer_market' %}" class="producer-home-link">← Back to Market</a>
+    </p>
+</div>
+{% endblock %}

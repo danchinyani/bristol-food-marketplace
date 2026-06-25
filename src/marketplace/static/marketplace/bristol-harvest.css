@@ -1,0 +1,578 @@
+/* Bristol Harvest theme overlay.
+   Loaded after styles.css so the original layout and Django templates stay intact. */
+
+:root {
+    --harvest-bg: #f7f3e8;
+    --harvest-surface: #fffdf7;
+    --harvest-surface-strong: #ffffff;
+    --harvest-border: #ddd3bd;
+    --harvest-text: #24332d;
+    --harvest-muted: #66756b;
+    --harvest-green: #236044;
+    --harvest-green-dark: #143b2b;
+    --harvest-green-soft: #e5efe4;
+    --harvest-tomato: #b94632;
+    --harvest-tomato-dark: #8f2d20;
+    --harvest-gold: #d99b33;
+    --harvest-aubergine: #3b2a42;
+    --harvest-shadow: 0 14px 35px rgba(36, 51, 45, 0.10);
+    --harvest-shadow-soft: 0 8px 22px rgba(36, 51, 45, 0.08);
+    --harvest-radius: 8px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    background: var(--harvest-bg);
+}
+
+body {
+    color: var(--harvest-text);
+    background:
+        linear-gradient(180deg, rgba(229, 239, 228, 0.72), rgba(247, 243, 232, 0.92) 260px),
+        var(--harvest-bg);
+    font-family: "Segoe UI", Arial, sans-serif;
+    line-height: 1.5;
+}
+
+a {
+    color: var(--harvest-green);
+}
+
+a:hover,
+a:focus {
+    color: var(--harvest-tomato-dark);
+}
+
+.top-bar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    min-height: 72px;
+    padding: 0.85rem 1.4rem;
+    background: var(--harvest-green-dark);
+    border-bottom: 4px solid var(--harvest-gold);
+    box-shadow: 0 8px 24px rgba(20, 59, 43, 0.22);
+    gap: 18px;
+}
+
+.brand-name {
+    color: #fffaf0;
+    font-size: 1.08rem;
+    letter-spacing: 0;
+    line-height: 1.2;
+}
+
+.brand-name::after {
+    content: "Local food marketplace";
+    display: block;
+    margin-top: 3px;
+    color: #d8e8d2;
+    font-size: 0.76rem;
+    font-weight: 600;
+}
+
+.main-nav {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    color: #eef6ec;
+    gap: 8px 14px;
+}
+
+.top-bar .nav-link,
+.top-bar .nav-link-btn,
+.basket-icon-link {
+    color: #fffaf0;
+    border-radius: 999px;
+    padding: 8px 11px;
+    transition: background 0.18s ease, color 0.18s ease, transform 0.18s ease;
+}
+
+.top-bar .nav-link:hover,
+.top-bar .nav-link:focus,
+.top-bar .nav-link-btn:hover,
+.top-bar .nav-link-btn:focus,
+.basket-icon-link:hover,
+.basket-icon-link:focus {
+    color: #ffffff;
+    background: rgba(255, 250, 240, 0.14);
+    text-decoration: none;
+    transform: translateY(-1px);
+}
+
+.basket-icon-wrapper {
+    position: static;
+    transform: none;
+    margin-left: auto;
+}
+
+.basket-icon-link {
+    background: var(--harvest-tomato);
+    box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.15);
+}
+
+.basket-count-badge {
+    background: #fffaf0;
+    color: var(--harvest-tomato-dark);
+    border: 2px solid var(--harvest-tomato-dark);
+}
+
+.container {
+    min-height: calc(100vh - 72px);
+    align-items: stretch;
+}
+
+.sidebar {
+    width: 230px;
+    background: rgba(255, 253, 247, 0.92);
+    border-right: 1px solid var(--harvest-border);
+    box-shadow: 8px 0 26px rgba(36, 51, 45, 0.05);
+}
+
+.sidebar h3 {
+    margin: 0 0 14px;
+    color: var(--harvest-aubergine);
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.sidebar ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.sidebar li + li {
+    margin-top: 6px;
+}
+
+.sidebar .nav-link {
+    display: block;
+    padding: 9px 10px;
+    color: var(--harvest-text);
+    border-radius: 8px;
+}
+
+.sidebar .nav-link:hover,
+.sidebar .nav-link:focus {
+    color: var(--harvest-green-dark);
+    background: var(--harvest-green-soft);
+    text-decoration: none;
+}
+
+.content {
+    max-width: 1280px;
+    padding: 28px;
+}
+
+.auth-title,
+.choice-title,
+.home-hero h1,
+.home-panel h2,
+.admin-welcome h1,
+.producer-orders-header h2,
+.recurring-page-header h2,
+.recipe-detail-title,
+.customer-recipe-title {
+    color: var(--harvest-aubergine);
+    letter-spacing: 0;
+}
+
+.auth-subtitle,
+.choice-subtitle,
+.home-muted,
+.producer-product-meta,
+.producer-product-description,
+.producer-product-allergens,
+.admin-meta,
+.notification-timestamp,
+.recipe-detail-meta,
+.customer-recipe-meta,
+.producer-recipe-date {
+    color: var(--harvest-muted);
+}
+
+.login-auth-container,
+.registration-container {
+    max-width: 620px;
+}
+
+.producer-action-container,
+.producer-edit-container,
+.basket-page-container,
+.admin-page,
+.producer-orders-page,
+.producer-reviews-page,
+.recurring-page {
+    max-width: 1120px;
+}
+
+.auth-form,
+.choice-card,
+.producer-panel,
+.home-hero,
+.home-panel,
+.home-kpi-card,
+.basket-panel,
+.basket-checkout-panel,
+.admin-panel,
+.admin-kpi-card,
+.admin-profile-card,
+.producer-product-card,
+.producer-review-card,
+.notification-card,
+.producer-order-card,
+.recurring-order-card,
+.recurring-page-header,
+.recurring-page-action,
+.recurring-empty-state,
+.producer-orders-header,
+.producer-orders-empty,
+.producer-recipe-card,
+.customer-recipe-card,
+.recipe-detail-card {
+    background: var(--harvest-surface);
+    border: 1px solid var(--harvest-border);
+    border-radius: var(--harvest-radius);
+    box-shadow: var(--harvest-shadow-soft);
+}
+
+.auth-form,
+.producer-panel,
+.basket-panel,
+.basket-checkout-panel,
+.admin-panel,
+.producer-order-card,
+.recurring-order-card,
+.recipe-detail-card {
+    padding: 24px;
+}
+
+.home-hero {
+    border-top: 5px solid var(--harvest-gold);
+}
+
+.producer-gallery-panel,
+.market-filter-panel {
+    background: rgba(255, 253, 247, 0.96);
+}
+
+.producer-product-list,
+.producer-reviews-list,
+.recurring-orders-list,
+.producer-orders-list {
+    gap: 16px;
+}
+
+.producer-product-card {
+    padding: 20px;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+}
+
+.producer-product-card:hover {
+    border-color: rgba(35, 96, 68, 0.38);
+    box-shadow: var(--harvest-shadow);
+    transform: translateY(-2px);
+}
+
+.producer-product-header {
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.producer-product-header h3 {
+    color: var(--harvest-green-dark);
+}
+
+.producer-product-price,
+.discounted-price,
+.admin-kpi-value,
+.home-kpi-value {
+    color: var(--harvest-tomato-dark);
+}
+
+.old-price {
+    color: #947f74;
+}
+
+.surplus-badge,
+.producer-recipe-season,
+.recurring-status-pill,
+.admin-status-badge,
+.food-miles-badge,
+.stripe-badge {
+    border-radius: 999px;
+    font-weight: 700;
+}
+
+.surplus-badge,
+.food-miles-low {
+    background: #e8f3d7;
+    color: #315b1f;
+}
+
+.food-miles-high {
+    background: #f8e0d9;
+    color: var(--harvest-tomato-dark);
+}
+
+.producer-product-allergens,
+.auth-error-msg,
+.market-message--error {
+    color: var(--harvest-tomato-dark);
+    background: #f9e5de;
+    border: 1px solid #efc2b5;
+}
+
+.market-message--success {
+    color: var(--harvest-green-dark);
+    background: #e7f0df;
+    border: 1px solid #c8dabd;
+}
+
+.auth-form input,
+.auth-form select,
+.auth-form textarea,
+.auth-field,
+.add-to-basket-qty,
+.basket-date-row input[type="date"],
+.admin-report-field select,
+.admin-report-field input[type="date"],
+.producer-order-select,
+.recurring-status-form select,
+.order-review-rating,
+.order-review-comment {
+    background: var(--harvest-surface-strong);
+    border: 1px solid #cfc5b2;
+    border-radius: 8px;
+    color: var(--harvest-text);
+    min-height: 42px;
+}
+
+.auth-form input:focus,
+.auth-form textarea:focus,
+.auth-form select:focus,
+.auth-field:focus,
+.add-to-basket-qty:focus,
+.producer-order-select:focus,
+.recurring-status-form select:focus,
+.order-review-comment:focus {
+    outline: 3px solid rgba(217, 155, 51, 0.28);
+    border-color: var(--harvest-green);
+    box-shadow: none;
+}
+
+.auth-label,
+.add-to-basket-label,
+.order-review-label,
+.admin-report-field label,
+.recurring-status-form label {
+    color: var(--harvest-green-dark);
+}
+
+.auth-submit-btn,
+.producer-submit-btn,
+.add-to-basket-btn,
+.basket-place-order-btn,
+.basket-update-date-btn,
+.home-action-button,
+.producer-action-link,
+.producer-order-btn,
+.recurring-primary-btn,
+.recurring-secondary-btn,
+.order-review-btn,
+.admin-report-submit,
+.admin-report-btn {
+    background: var(--harvest-green);
+    border: 1px solid var(--harvest-green);
+    border-radius: 8px;
+    color: #fffaf0;
+    font-weight: 700;
+    text-decoration: none;
+    box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.14);
+    transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.auth-submit-btn:hover,
+.producer-submit-btn:hover,
+.add-to-basket-btn:hover,
+.basket-place-order-btn:hover,
+.basket-update-date-btn:hover,
+.home-action-button:hover,
+.producer-action-link:hover,
+.producer-order-btn:hover,
+.recurring-primary-btn:hover,
+.recurring-secondary-btn:hover,
+.order-review-btn:hover,
+.admin-report-submit:hover,
+.admin-report-btn:hover {
+    background: var(--harvest-green-dark);
+    border-color: var(--harvest-green-dark);
+    color: #ffffff;
+    text-decoration: none;
+    transform: translateY(-1px);
+    box-shadow: 0 10px 18px rgba(20, 59, 43, 0.18);
+}
+
+.producer-delete-btn,
+.basket-remove-btn,
+.allergen-chip-remove {
+    background: var(--harvest-tomato);
+    color: #ffffff;
+}
+
+.producer-delete-btn:hover,
+.basket-remove-btn:hover,
+.allergen-chip-remove:hover,
+.producer-delete-btn:focus,
+.basket-remove-btn:focus,
+.allergen-chip-remove:focus {
+    background: var(--harvest-tomato-dark);
+}
+
+.market-filter-form,
+.admin-report-form-row {
+    gap: 14px;
+}
+
+.market-filter-reset,
+.producer-bio-link,
+.auth-footer-text a,
+a.admin-quick-link {
+    color: var(--harvest-green);
+    font-weight: 700;
+}
+
+.allergen-chip {
+    background: #f2e7d2;
+    border: 1px solid #dcc9a5;
+    color: var(--harvest-aubergine);
+}
+
+.basket-table,
+.admin-table,
+.producer-order-table,
+.recurring-order-table,
+.recipe-detail-table {
+    border-collapse: separate;
+    border-spacing: 0;
+    overflow: hidden;
+}
+
+.basket-table th,
+.admin-table th,
+.producer-order-table th,
+.recurring-order-table th,
+.recipe-detail-table th {
+    background: var(--harvest-green-dark);
+    color: #fffaf0;
+}
+
+.basket-table td,
+.admin-table td,
+.producer-order-table td,
+.recurring-order-table td,
+.recipe-detail-table td {
+    border-bottom: 1px solid var(--harvest-border);
+}
+
+.admin-table tbody tr:hover {
+    background: #fbf2df;
+}
+
+.notification-unread {
+    border-left: 5px solid var(--harvest-gold);
+}
+
+.product-image-container img,
+.recipe-image-strip img {
+    border: 1px solid var(--harvest-border);
+    box-shadow: var(--harvest-shadow-soft);
+}
+
+@media (max-width: 900px) {
+    .top-bar,
+    .container {
+        flex-direction: column;
+    }
+
+    .basket-icon-wrapper {
+        margin-left: 0;
+        width: auto;
+    }
+
+    .main-nav {
+        justify-content: flex-start;
+    }
+
+    .sidebar {
+        width: 100%;
+        border-right: 0;
+        border-bottom: 1px solid var(--harvest-border);
+    }
+
+    .sidebar ul {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .sidebar li + li {
+        margin-top: 0;
+    }
+
+    .content {
+        width: 100%;
+        padding: 18px;
+    }
+
+    .registration-container,
+    .login-auth-container,
+    .producer-action-container,
+    .producer-edit-container,
+    .basket-page-container,
+    .admin-page,
+    .producer-orders-page,
+    .producer-reviews-page,
+    .recurring-page {
+        max-width: 100%;
+        width: 100%;
+    }
+}
+
+@media (max-width: 620px) {
+    .top-bar {
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .brand-name {
+        font-size: 1rem;
+        max-width: 100%;
+    }
+
+    .top-bar .nav-link,
+    .top-bar .nav-link-btn,
+    .basket-icon-link {
+        padding: 7px 9px;
+    }
+
+    .producer-product-header,
+    .recurring-order-header,
+    .producer-order-top {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .market-filter-form {
+        grid-template-columns: 1fr;
+    }
+
+    .market-filter-field,
+    .market-filter-field--full {
+        grid-column: auto;
+    }
+}

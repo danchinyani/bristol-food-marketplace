@@ -1,0 +1,135 @@
+{% extends 'marketplace/base.html' %}
+
+{% block title %}Edit Listing - Bristol Food Network{% endblock %}
+
+{% block content %}
+<div class="registration-container producer-edit-container">
+    <h2 class="auth-title">Edit Listing</h2>
+    <p class="auth-subtitle">Update your product details below.</p>
+
+    <form method="post" class="auth-form" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        {% for field in form %}
+            <div class="auth-field-group">
+                <label class="auth-label" for="{{ field.id_for_label }}">
+                    {{ field.label }}
+                </label>
+
+                {% if field.name == 'allergens' %}
+                    <!-- ALLERGEN PICKER - SELECT ONE AT A TIME, DROPDOWN CLOSES AFTER EACH PICK -->
+                    <div class="allergen-picker" data-allergen-picker>
+                        <select class="auth-field allergen-picker-select" data-allergen-dropdown>
+                            <option value="">Select allergen</option>
+                            {% for allergen_code, allergen_label in field.field.choices %}
+                                <option value="{{ allergen_code }}">{{ allergen_label }}</option>
+                            {% endfor %}
+                        </select>
+
+                        <small class="field-help-text producer-field-help-text">
+                            Select one allergen at a time. Reopen the dropdown to add another.
+                        </small>
+
+                        <div class="allergen-selected-list" data-selected-list>
+                            {% for selected_code in field.value %}
+                                {% for allergen_code, allergen_label in field.field.choices %}
+                                    {% if allergen_code == selected_code %}
+                                        <span class="allergen-chip" data-allergen-chip="{{ allergen_code }}">
+                                            {{ allergen_label }}
+                                            <button type="button" class="allergen-chip-remove" data-remove-allergen="{{ allergen_code }}">×</button>
+                                        </span>
+                                        <input type="hidden" name="allergens" value="{{ allergen_code }}" data-hidden-allergen="{{ allergen_code }}">
+                                    {% endif %}
+                                {% endfor %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% else %}
+                    {{ field }}
+                {% endif %}
+
+                {% if field.help_text %}
+                    <small class="field-help-text producer-field-help-text">
+                        {{ field.help_text }}
+                    </small>
+                {% endif %}
+
+                {% if field.errors %}
+                    <div class="field-error-msg producer-field-error-msg">
+                        {{ field.errors }}
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+
+        <button type="submit" class="auth-submit-btn producer-submit-btn">
+            Save Changes
+        </button>
+    </form>
+
+    <p class="auth-footer-text producer-footer-text">
+        <a href="{% url 'producer_product_actions' product.id %}" class="producer-home-link">← Back to listing actions</a>
+    </p>
+</div>
+
+<script>
+// ALLERGEN PICKER SCRIPT - ADDS ONE ALLERGEN PER DROPDOWN SELECTION AND CLOSES AFTER EACH PICK
+document.querySelectorAll('[data-allergen-picker]').forEach(function (picker) {
+    // GET THE DROPDOWN AND THE SELECTED TAG CONTAINER FOR THIS PICKER
+    var dropdown = picker.querySelector('[data-allergen-dropdown]');
+    var selectedList = picker.querySelector('[data-selected-list]');
+
+    // ADD A SELECTED ALLERGEN AS A TAG + HIDDEN INPUT (USED IN FORM SUBMISSION)
+    function addAllergen(code, label) {
+        if (!code) {
+            return;
+        }
+
+        // SKIP DUPLICATES IF THE ALLERGEN IS ALREADY SELECTED
+        if (picker.querySelector('[data-hidden-allergen="' + code + '"]')) {
+            return;
+        }
+
+        var chip = document.createElement('span');
+        chip.className = 'allergen-chip';
+        chip.setAttribute('data-allergen-chip', code);
+        chip.innerHTML = label + ' <button type="button" class="allergen-chip-remove" data-remove-allergen="' + code + '">×</button>';
+
+        var hiddenInput = document.createElement('input');
+        hiddenInput.type = 'hidden';
+        hiddenInput.name = 'allergens';
+        hiddenInput.value = code;
+        hiddenInput.setAttribute('data-hidden-allergen', code);
+
+        selectedList.appendChild(chip);
+        selectedList.appendChild(hiddenInput);
+    }
+
+    dropdown.addEventListener('change', function () {
+        // ADD THE NEW ALLERGEN THEN RESET THE DROPDOWN PLACEHOLDER
+        var selectedCode = dropdown.value;
+        var selectedLabel = dropdown.options[dropdown.selectedIndex].text;
+        addAllergen(selectedCode, selectedLabel);
+        dropdown.value = '';
+    });
+
+    selectedList.addEventListener('click', function (event) {
+        // REMOVE TAG + HIDDEN INPUT WHEN THE USER CLICKS THE X BUTTON
+        if (!event.target.matches('[data-remove-allergen]')) {
+            return;
+        }
+
+        var code = event.target.getAttribute('data-remove-allergen');
+        var chip = picker.querySelector('[data-allergen-chip="' + code + '"]');
+        var hiddenInput = picker.querySelector('[data-hidden-allergen="' + code + '"]');
+
+        if (chip) {
+            chip.remove();
+        }
+        if (hiddenInput) {
+            hiddenInput.remove();
+        }
+    });
+});
+</script>
+{% endblock %}

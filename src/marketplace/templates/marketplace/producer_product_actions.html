@@ -1,0 +1,30 @@
+{% extends 'marketplace/base.html' %}
+
+{% block title %}Manage Listing - Bristol Food Network{% endblock %}
+
+{% block content %}
+<div class="registration-container producer-action-container">
+    <h2 class="auth-title">Manage Listing</h2>
+    <p class="auth-subtitle">Choose what you want to do with this product.</p>
+
+    <div class="producer-panel producer-action-panel">
+        <h3 class="producer-action-product-title">{{ product.name }}</h3>
+        <p class="producer-product-meta"><strong>Category:</strong> {{ product.get_category_display }}</p>
+        <p class="producer-product-meta"><strong>Price:</strong> £{{ product.price }} / {{ product.unit }}</p>
+        <p class="producer-product-meta"><strong>Stock:</strong> {{ product.stock_quantity }}</p>
+
+        <div class="producer-action-buttons">
+            <a href="{% url 'edit_product' product.id %}" class="producer-action-link">Edit listing</a>
+
+            <form method="post" action="{% url 'delete_product' product.id %}" class="producer-delete-form">
+                {% csrf_token %}
+                <button type="submit" class="producer-delete-btn" onclick="return confirm('Delete this listing permanently?');">Delete listing</button>
+            </form>
+        </div>
+    </div>
+
+    <p class="auth-footer-text producer-footer-text">
+        <a href="{% url 'add_product' %}" class="producer-home-link">← Back to your products</a>
+    </p>
+</div>
+{% endblock %}

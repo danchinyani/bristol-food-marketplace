@@ -1,0 +1,34 @@
+{% extends 'marketplace/base.html' %}
+
+{% block title %}Customer Sign Up - Bristol Food Network{% endblock %}
+
+{% block content %}
+<div class="registration-container">
+    <h2 class="auth-title">Customer Registration</h2>
+    <p class="auth-subtitle">Create an account to browse and buy local Bristol produce.</p>
+    
+    <form method="post" class="auth-form">
+        {% csrf_token %}
+        
+        {% for field in form %}
+            <div class="auth-field-group">
+                <label class="auth-label">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                    <div class="field-error-msg">
+                        {{ field.errors }}
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+
+        <button type="submit" class="auth-submit-btn">
+            Join the Network
+        </button>
+    </form>
+
+    <p class="auth-footer-text">
+        Already have an account? <a href="{% url 'login' %}">Login here</a>
+    </p>
+</div>
+{% endblock %}

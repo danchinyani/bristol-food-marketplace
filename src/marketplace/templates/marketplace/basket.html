@@ -1,0 +1,382 @@
+{% extends 'marketplace/base.html' %}
+
+{% block title %}My Basket - Bristol Food Network{% endblock %}
+
+{% block content %}
+<!-- BASKET PAGE - SHOWS ALL ITEMS IN THE CUSTOMER'S BASKET AND THE CHECKOUT FORM -->
+<div class="basket-page-container">
+    <h2 class="auth-title">My Basket</h2>
+    <p class="auth-subtitle">Review your items and complete your order below.</p>
+
+    <!-- DISPLAY DJANGO MESSAGES (E.G. REMOVAL FEEDBACK) AT THE TOP OF THE PAGE -->
+    {% if messages %}
+        <div class="market-messages">
+            {% for message in messages %}
+                <p class="market-message market-message--{{ message.tags }}">{{ message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% if basket_items %}
+
+        <!-- BASKET ITEMS TABLE - LISTS ALL PRODUCTS THE CUSTOMER HAS ADDED -->
+        <div class="basket-panel">
+            <table class="basket-table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Producer</th>
+                        <th>Unit Price</th>
+                        <th>Quantity</th>
+                        <th>Subtotal</th>
+                        <!-- FOOD MILES COLUMN HEADER - TC-013 -->
+                        <th>Food Miles</th>
+                        <!-- REMOVE COLUMN HEADER FOR THE DELETE BUTTONS -->
+                        <th>Remove</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in basket_with_miles %}
+                        <tr class="basket-row">
+                            <td>{{ entry.item.product.name }}</td>
+                            <td>{{ entry.item.product.producer.business_name }}</td>
+                            <!-- DISPLAY THE SURPLUS-DISCOUNTED PRICE PER UNIT INCLUDING THE UNIT TYPE -->
+                            <td>
+                                {% if entry.item.product.is_surplus and entry.item.product.discount_percent > 0 %}
+                                    <span style="text-decoration: line-through; color: #999;">£{{ entry.item.product.price }}</span>
+                                    £{{ entry.item.product.discounted_price|floatformat:2 }} / {{ entry.item.product.unit }}
+                                {% else %}
+                                    £{{ entry.item.product.price }} / {{ entry.item.product.unit }}
+                                {% endif %}
+                            </td>
+                            <td>{{ entry.item.quantity }}</td>
+                            <!-- CALCULATE AND DISPLAY THE LINE TOTAL FOR THIS ITEM -->
+                            <td>£{{ entry.item.get_subtotal }}</td>
+                            <!-- FOOD MILES PER PRODUCT - TC-013 -->
+                            <td>
+                                {% if entry.food_miles is not None %}
+                                    🌍 {{ entry.food_miles }} miles
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            </td>
+                            <!-- REMOVE FROM BASKET FORM - POSTS TO THE REMOVE VIEW -->
+                            <td>
+                                <form method="post" action="{% url 'remove_from_basket' entry.item.id %}">
+                                    {% csrf_token %}
+                                    <button class="basket-remove-btn" type="submit" title="Remove item">✕</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <!-- GRAND TOTAL ROW AT THE BOTTOM OF THE TABLE -->
+                    <tr class="basket-total-row">
+                        <td colspan="4"><strong>Total</strong></td>
+                        <td><strong>£{{ total }}</strong></td>
+                        <!-- TOTAL FOOD MILES - TC-013 -->
+                        <td><strong>🌍 {{ total_food_miles }} miles</strong></td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+
+        </div>
+
+        <!-- CHECKOUT FORM - CONFIRMS PROFILE DELIVERY ADDRESS, DATE, AND CARD DETAILS -->
+        <div class="basket-checkout-panel">
+            <h3 class="basket-checkout-title">Checkout Details</h3>
+            {% if stripe_enabled %}
+                <p class="auth-subtitle">You will be redirected to Stripe Test Checkout to complete a placeholder payment.</p>
+            {% else %}
+                <p class="auth-subtitle">Stripe is not active in this runtime, so checkout will complete locally as a placeholder flow.</p>
+            {% endif %}
+
+            {% if stripe_enabled %}
+                <div class="stripe-badge stripe-badge--checkout" role="status" aria-live="polite">
+                    <span class="stripe-badge-logo" aria-hidden="true">Stripe</span>
+                    <span>
+                        Secure checkout powered by Stripe
+                        {% if stripe_test_mode %}
+                            <strong>• Test Mode • No real charge</strong>
+                        {% endif %}
+                    </span>
+                </div>
+            {% endif %}
+
+            <form class="auth-form" method="post" action="{% url 'checkout' %}">
+                {% csrf_token %}
+
+                <div class="auth-field-group">
+                    <label class="auth-label">Delivery Address</label>
+                    <p class="auth-field">{{ customer_address }}</p>
+                </div>
+
+                <!-- PREFERRED DELIVERY DATE FIELD -->
+                <div class="auth-field-group">
+                    <label class="auth-label" for="{{ form.preferred_delivery_date.id_for_label }}">
+                        {{ form.preferred_delivery_date.label }}
+                    </label>
+                    <div class="basket-date-row">
+                        {{ form.preferred_delivery_date }}
+                        {% if recurring_order_setup %}
+                        <button
+                            type="button"
+                            id="update-delivery-date-btn"
+                            class="basket-update-date-btn"
+                            style="display: none;"
+                            data-cancel-url="{% url 'cancel_recurring_for_date_update' %}"
+                            data-csrf="{{ csrf_token }}"
+                        >Update delivery date</button>
+                        {% endif %}
+                    </div>
+                    {% if form.preferred_delivery_date.errors %}
+                        {% for error in form.preferred_delivery_date.errors %}
+                            <p class="field-error-msg">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <!-- RECURRING ORDER CHECKOUT FLOW -->
+                <div class="auth-field-group basket-recurring-checkout">
+                    <label class="basket-recurring-label" for="{{ form.make_recurring.id_for_label }}">
+                        {{ form.make_recurring }}
+                        <span>{{ form.make_recurring.label }}</span>
+                    </label>
+
+                    <div id="basket-recurring-fields" {% if not form.make_recurring.value %}style="display: none;"{% endif %}>
+                        <p class="auth-subtitle">Choose the weekly recurring pattern, then review the summary before placing your initial order.</p>
+
+                        <div class="auth-field-group">
+                            <label class="auth-label" for="{{ form.recurrence_frequency.id_for_label }}">{{ form.recurrence_frequency.label }}</label>
+                            {{ form.recurrence_frequency }}
+                            {% for error in form.recurrence_frequency.errors %}<p class="field-error-msg">{{ error }}</p>{% endfor %}
+                        </div>
+
+                        <div class="basket-card-row">
+                            <div class="auth-field-group basket-card-half">
+                                <label class="auth-label" for="{{ form.recurrence_day.id_for_label }}">{{ form.recurrence_day.label }}</label>
+                                {{ form.recurrence_day }}
+                                {% for error in form.recurrence_day.errors %}<p class="field-error-msg">{{ error }}</p>{% endfor %}
+                            </div>
+
+                            <div class="auth-field-group basket-card-half">
+                                <label class="auth-label" for="{{ form.recurring_delivery_day.id_for_label }}">{{ form.recurring_delivery_day.label }}</label>
+                                {{ form.recurring_delivery_day }}
+                                {% for error in form.recurring_delivery_day.errors %}<p class="field-error-msg">{{ error }}</p>{% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="basket-panel">
+                            <h4 class="basket-checkout-title">Recurring Order Summary</h4>
+                            <p class="auth-subtitle">
+                                Repeats <span id="recurring-summary-frequency">{{ form.recurrence_frequency.value|default:'WEEKLY'|lower }}</span>
+                                on <span id="recurring-summary-day">Monday</span>,
+                                delivered every <span id="recurring-summary-delivery">Wednesday</span>.
+                            </p>
+                            <p class="auth-subtitle">First scheduled recurring delivery: <strong id="recurring-summary-date">{{ form.preferred_delivery_date.value|default:'Choose a delivery date above' }}</strong></p>
+
+                            <table class="basket-table">
+                                <thead>
+                                    <tr>
+                                        <th>Product</th>
+                                        <th>Producer</th>
+                                        <th>Quantity</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in basket_items %}
+                                        <tr>
+                                            <td>{{ item.product.name }}</td>
+                                            <td>{{ item.product.producer.business_name }}</td>
+                                            <td>{{ item.quantity }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                {% if not stripe_enabled %}
+                <!-- CARD FIELDS ONLY SHOWN WHEN STRIPE IS NOT ACTIVE (LOCAL FALLBACK FLOW) -->
+
+                <!-- CARD HOLDER NAME FIELD -->
+                <div class="auth-field-group">
+                    <label class="auth-label" for="{{ form.card_holder_name.id_for_label }}">
+                        {{ form.card_holder_name.label }}
+                    </label>
+                    {{ form.card_holder_name }}
+                    {% if form.card_holder_name.errors %}
+                        {% for error in form.card_holder_name.errors %}
+                            <p class="field-error-msg">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <!-- CARD NUMBER FIELD - ONLY LAST 4 DIGITS ARE SAVED TO THE DATABASE -->
+                <div class="auth-field-group">
+                    <label class="auth-label" for="{{ form.card_number.id_for_label }}">
+                        {{ form.card_number.label }}
+                    </label>
+                    {{ form.card_number }}
+                    {% if form.card_number.errors %}
+                        {% for error in form.card_number.errors %}
+                            <p class="field-error-msg">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <!-- EXPIRY DATE AND CVV SIDE BY SIDE -->
+                <div class="basket-card-row">
+                    <div class="auth-field-group basket-card-half">
+                        <label class="auth-label" for="{{ form.card_expiry.id_for_label }}">
+                            {{ form.card_expiry.label }}
+                        </label>
+                        {{ form.card_expiry }}
+                        {% if form.card_expiry.errors %}
+                            {% for error in form.card_expiry.errors %}
+                                <p class="field-error-msg">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+                    <div class="auth-field-group basket-card-half">
+                        <label class="auth-label" for="{{ form.card_cvv.id_for_label }}">
+                            {{ form.card_cvv.label }}
+                        </label>
+                        {{ form.card_cvv }}
+                        {% if form.card_cvv.errors %}
+                            {% for error in form.card_cvv.errors %}
+                                <p class="field-error-msg">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- PLACE ORDER BUTTON -->
+                <button
+                    id="basket-submit-btn"
+                    class="auth-submit-btn basket-place-order-btn"
+                    type="submit"
+                >
+                    {% if stripe_enabled %}
+                        Proceed to Test Payment — £{{ total }}
+                    {% else %}
+                        Place Order — £{{ total }}
+                    {% endif %}
+                </button>
+
+            </form>
+        </div>
+
+    {% else %}
+        <!-- EMPTY BASKET STATE - SHOWN WHEN THE CUSTOMER HAS NO ITEMS IN THEIR BASKET -->
+        <div class="producer-empty-state basket-empty-state">
+            <p>Your basket is empty.</p>
+            <a href="{% url 'customer_market' %}" class="producer-bio-link">Browse the market</a>
+        </div>
+    {% endif %}
+        
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const deliveryDateInput = document.getElementById('{{ form.preferred_delivery_date.id_for_label }}');
+        const recurringCheckbox = document.getElementById('{{ form.make_recurring.id_for_label }}');
+        const recurringFields = document.getElementById('basket-recurring-fields');
+        const recurrenceFrequency = document.getElementById('{{ form.recurrence_frequency.id_for_label }}');
+        const recurrenceDay = document.getElementById('{{ form.recurrence_day.id_for_label }}');
+        const deliveryDay = document.getElementById('{{ form.recurring_delivery_day.id_for_label }}');
+        const summaryFrequency = document.getElementById('recurring-summary-frequency');
+        const summaryDay = document.getElementById('recurring-summary-day');
+        const summaryDelivery = document.getElementById('recurring-summary-delivery');
+        const summaryDate = document.getElementById('recurring-summary-date');
+        const weekdayLabels = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+        if (!deliveryDateInput || !recurringCheckbox || !recurringFields) return;
+
+        function buildDeliveryOptions(recurrenceDayValue) {
+            const recurrenceDayInt = parseInt(recurrenceDayValue || '0', 10);
+            const options = [];
+
+            for (let weekOffset = 0; weekOffset <= 1; weekOffset += 1) {
+                for (let weekday = 0; weekday < weekdayLabels.length; weekday += 1) {
+                    const gap = weekOffset === 0
+                        ? weekday - recurrenceDayInt
+                        : (7 - recurrenceDayInt) + weekday;
+
+                    if (gap >= 2) {
+                        const prefix = weekOffset === 0 ? 'Same week' : 'Next week';
+                        options.push({
+                            value: `${weekOffset}:${weekday}`,
+                            label: `${prefix} - ${weekdayLabels[weekday]}`,
+                        });
+                    }
+                }
+            }
+
+            return options;
+        }
+
+        function syncDeliveryOptions() {
+            if (!recurrenceDay || !deliveryDay) {
+                return;
+            }
+
+            const currentValue = deliveryDay.value;
+            const options = buildDeliveryOptions(recurrenceDay.value);
+            deliveryDay.innerHTML = '';
+
+            options.forEach(function (optionData) {
+                const option = document.createElement('option');
+                option.value = optionData.value;
+                option.textContent = optionData.label;
+                if (optionData.value === currentValue) {
+                    option.selected = true;
+                }
+                deliveryDay.appendChild(option);
+            });
+
+            if (!deliveryDay.value && options.length > 0) {
+                deliveryDay.value = options[0].value;
+            }
+        }
+
+        function selectedText(selectEl) {
+            if (!selectEl || !selectEl.options.length) {
+                return '';
+            }
+            return selectEl.options[selectEl.selectedIndex].text;
+        }
+
+        function updateUI() {
+            syncDeliveryOptions();
+            recurringFields.style.display = recurringCheckbox.checked ? '' : 'none';
+
+            if (summaryFrequency) {
+                summaryFrequency.textContent = selectedText(recurrenceFrequency).toLowerCase();
+            }
+            if (summaryDay) {
+                summaryDay.textContent = selectedText(recurrenceDay);
+            }
+            if (summaryDelivery) {
+                summaryDelivery.textContent = selectedText(deliveryDay);
+            }
+            if (summaryDate) {
+                summaryDate.textContent = deliveryDateInput.value || 'Choose a delivery date above';
+            }
+        }
+
+        updateUI();
+        recurringCheckbox.addEventListener('change', updateUI);
+        deliveryDateInput.addEventListener('change', updateUI);
+        deliveryDateInput.addEventListener('input', updateUI);
+        if (recurrenceFrequency) recurrenceFrequency.addEventListener('change', updateUI);
+        if (recurrenceDay) recurrenceDay.addEventListener('change', updateUI);
+        if (deliveryDay) deliveryDay.addEventListener('change', updateUI);
+    });
+</script>
+{% endblock %}

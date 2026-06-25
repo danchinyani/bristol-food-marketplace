@@ -1,0 +1,108 @@
+{% extends 'marketplace/base.html' %}
+{% block content %}
+<h2>My Recipes</h2>
+
+<div class="order-card">
+    <h3>Add New Recipe</h3>
+    <form method="post" class="auth-form" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="auth-field-group">
+            <label class="auth-label">{{ form.title.label }}</label>
+            {{ form.title }}
+            {% for error in form.title.errors %}<p class="field-error-msg">{{ error }}</p>{% endfor %}
+        </div>
+
+        <div class="auth-field-group">
+            <label class="auth-label">{{ form.description.label }}</label>
+            {{ form.description }}
+            {% for error in form.description.errors %}<p class="field-error-msg">{{ error }}</p>{% endfor %}
+        </div>
+
+        <div class="auth-field-group">
+            <label class="auth-label">{{ form.ingredients.label }}</label>
+            {{ form.ingredients }}
+            {% for error in form.ingredients.errors %}<p class="field-error-msg">{{ error }}</p>{% endfor %}
+        </div>
+
+        <div class="auth-field-group">
+            <label class="auth-label">{{ form.instructions.label }}</label>
+            {{ form.instructions }}
+            {% for error in form.instructions.errors %}<p class="field-error-msg">{{ error }}</p>{% endfor %}
+        </div>
+
+        <div class="auth-field-group">
+            <label class="auth-label">{{ form.seasonal_tag.label }}</label>
+            {{ form.seasonal_tag }}
+            {% for error in form.seasonal_tag.errors %}<p class="field-error-msg">{{ error }}</p>{% endfor %}
+        </div>
+
+        <div class="auth-field-group">
+            <label class="auth-label">{{ form.linked_products.label }}</label>
+            {{ form.linked_products }}
+        </div>
+
+        <div class="auth-field-group">
+            <label class="auth-label" for="{{ form.images.id_for_label }}">{{ form.images.label }}</label>
+            {{ form.images }}
+            {% for error in form.images.errors %}<p class="field-error-msg">{{ error }}</p>{% endfor %}
+        </div>
+
+        <button type="submit" class="auth-submit-btn">Add Recipe</button>
+    </form>
+</div>
+
+{% if producer_recipes %}
+<h3>Your Recipes</h3>
+{% for recipe in producer_recipes %}
+<div class="producer-recipe-card">
+
+    <!-- HEADER: TITLE + IMAGES -->
+    <div class="producer-recipe-header">
+        <div class="producer-recipe-header-text">
+            <h3>{{ recipe.title }}</h3>
+            <span class="producer-recipe-date">{{ recipe.created_at|date:"d M Y" }}</span>
+            <span class="producer-recipe-season">{{ recipe.get_seasonal_tag_display }}</span>
+        </div>
+        <!-- IMAGES LEFT TO RIGHT WITH UNIFORM HEIGHT -->
+        {% if recipe.images.all %}
+        <div class="recipe-image-strip">
+            {% for img in recipe.images.all %}
+                <img src="{{ img.image.url }}" alt="Image of {{ recipe.title }}">
+            {% endfor %}
+        </div>
+        {% elif recipe.image %}
+        <div class="recipe-image-strip">
+            <img src="{{ recipe.image.url }}" alt="Image of {{ recipe.title }}">
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- BODY: DESCRIPTION, INGREDIENTS, INSTRUCTIONS -->
+    <div class="producer-recipe-body">
+        <h4>Description</h4>
+        <p>{{ recipe.description }}</p>
+
+        <h4>Ingredients</h4>
+        <pre>{{ recipe.ingredients }}</pre>
+
+        <h4>Instructions</h4>
+        <pre>{{ recipe.instructions }}</pre>
+    </div>
+
+    <!-- ACTIONS: EDIT + DELETE -->
+    <div class="producer-recipe-actions">
+        <a href="{% url 'edit_recipe' recipe.id %}" class="nav-link">Edit</a>
+        <form method="post" action="{% url 'delete_recipe' recipe.id %}" class="nav-inline-form">
+            {% csrf_token %}
+            <button type="submit" class="nav-link-btn" onclick="return confirm('Delete this recipe?')">Delete</button>
+        </form>
+    </div>
+
+</div>
+{% endfor %}
+{% else %}
+<p>You have no recipes yet.</p>
+{% endif %}
+
+{% endblock %}

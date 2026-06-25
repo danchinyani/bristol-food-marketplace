@@ -1,0 +1,49 @@
+{% extends 'marketplace/base.html' %}
+{% block content %}
+<h2>Recipes</h2>
+
+<!--form method="get" style="margin-bottom: 1rem;">
+    <label><strong>Filter by Season:</strong></label>
+    <select name="season" onchange="this.form.submit()" class="auth-field">
+        <option value="">All Seasons</option>
+        {% for value, label in season_choices %}
+            <option value="{{ value }}" {% if selected_season == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+    </select>
+</form-->
+
+{% if recipes %}
+    {% for recipe in recipes %}
+    <div class="customer-recipe-card">
+        <div class="customer-recipe-card-header">
+            <span class="customer-recipe-title">{{ recipe.title }}</span>
+            <span class="customer-recipe-meta">By: {{ recipe.producer.business_name }} &middot; {{ recipe.get_seasonal_tag_display }}</span>
+        </div>
+        <div class="customer-recipe-card-body">
+            {% if recipe.images.all %}
+                <div style="margin-bottom: 12px;">
+                    <img src="{{ recipe.images.first.image.url }}" alt="Image of {{ recipe.title }}" style="max-width: 100%; height: 220px; object-fit: cover; border-radius: 8px;">
+                </div>
+            {% elif recipe.image %}
+                <div style="margin-bottom: 12px;">
+                    <img src="{{ recipe.image.url }}" alt="Image of {{ recipe.title }}" style="max-width: 100%; height: 220px; object-fit: cover; border-radius: 8px;">
+                </div>
+            {% endif %}
+
+            <p>{{ recipe.description|truncatewords:25 }}</p>
+            {% if recipe.linked_products.all %}
+                <p>Uses:
+                    {% for product in recipe.linked_products.all %}
+                        {{ product.name }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                </p>
+            {% endif %}
+            <a href="{% url 'recipe_detail' recipe.id %}" class="nav-link">View Full Recipe</a>
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+    <p>No recipes found.</p>
+{% endif %}
+
+{% endblock %}

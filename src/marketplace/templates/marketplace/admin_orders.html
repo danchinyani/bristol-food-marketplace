@@ -1,0 +1,47 @@
+{% extends 'marketplace/base.html' %}
+
+{% block title %}Order History - Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="admin-page">
+
+    <!-- PAGE HEADER -->
+    <section class="admin-panel admin-welcome">
+        <h1>Order History</h1>
+        <p>All {{ total_orders }} order{{ total_orders|pluralize }} placed on the platform.</p>
+    </section>
+
+    <!-- ORDER HISTORY TABLE -->
+    <section class="admin-panel">
+        <div class="admin-table-wrap">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Order #</th>
+                        <th>Customer</th>
+                        <th>Status</th>
+                        <th>Delivery Date</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                        <tr>
+                            <td>#{{ order.id }}</td>
+                            <td>{{ order.customer.name }}</td>
+                            <td><span class="admin-status-badge">{{ order.get_status_display }}</span></td>
+                            <td>{{ order.preferred_delivery_date }}</td>
+                            <td>&pound;{{ order.total_price }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="5">No orders have been placed yet.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+</div>
+{% endblock %}

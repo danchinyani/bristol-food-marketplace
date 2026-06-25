@@ -1,0 +1,153 @@
+{% extends 'marketplace/base.html' %}
+
+{% block title %}Completed Orders - Bristol Food Network{% endblock %}
+
+{% block content %}
+<div class="producer-orders-page">
+    <div class="producer-orders-header">
+        <h2>Completed Orders</h2>
+        <p>Review delivered one-off orders and completed recurring occurrences for your products.</p>
+    </div>
+
+    <div class="producer-orders-header">
+        <h3>One-Off Orders</h3>
+    </div>
+
+    {% if one_off_orders %}
+        <div class="producer-orders-list">
+            {% for entry in one_off_orders %}
+                {% with order=entry.order %}
+                <article class="producer-order-card">
+                    <div class="producer-order-top">
+                        <div>
+                            <h3>Order #{{ order.id }}</h3>
+                            <p><strong>Customer:</strong> {{ order.customer.name }}</p>
+                        </div>
+                        <div class="producer-order-status">
+                            {{ order.get_status_display }}
+                        </div>
+                    </div>
+
+                    <div class="producer-order-meta">
+                        <span><strong>Ordered:</strong> {{ order.created_at|date:"d M Y" }}</span>
+                        <span><strong>Delivered:</strong> {{ order.preferred_delivery_date|date:"d M Y" }}</span>
+                    </div>
+
+                    <div class="producer-order-table-wrap">
+                        <table class="producer-order-table">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Qty</th>
+                                    <th>Unit Price</th>
+                                    <th>Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in entry.items %}
+                                <tr>
+                                    <td>{{ item.product.name }}</td>
+                                    <td>{{ item.quantity }}</td>
+                                    <td>£{{ item.unit_price }}</td>
+                                    <td>£{{ item.get_subtotal }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="producer-order-footer">
+                        <div class="producer-order-contact">
+                            <p><strong>Delivered to:</strong> {{ order.delivery_address }}</p>
+                            <p><strong>Email:</strong> {{ order.customer.email }}</p>
+                            {% if order.customer.phone_number %}
+                                <p><strong>Phone:</strong> {{ order.customer.phone_number }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </article>
+                {% endwith %}
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="producer-orders-empty">
+            <p>No completed one-off orders yet.</p>
+        </div>
+    {% endif %}
+
+    <div class="producer-orders-header">
+        <h3>Recurring Orders</h3>
+    </div>
+
+    {% if recurring_orders %}
+        <div class="producer-orders-list">
+            {% for entry in recurring_orders %}
+                {% with order=entry.order %}
+                {% with recurring_order=entry.recurring_order %}
+                <article class="producer-order-card">
+                    <div class="producer-order-top">
+                        <div>
+                            <h3>Order #{{ order.id }}</h3>
+                            <p><strong>Customer:</strong> {{ order.customer.name }}</p>
+                        </div>
+                        <div class="producer-order-status">
+                            {{ order.get_status_display }}
+                        </div>
+                    </div>
+
+                    <div class="producer-order-meta">
+                        <span><strong>Delivered:</strong> {{ order.preferred_delivery_date|date:"d M Y" }}</span>
+                        {% if recurring_order %}
+                            <span><strong>Recurs On:</strong> {{ recurring_order.get_recurrence_day_display }}</span>
+                            <span><strong>Delivery Day:</strong> {{ recurring_order.get_delivery_schedule_display }}</span>
+                        {% endif %}
+                    </div>
+
+                    <p class="producer-order-recurring-note">
+                        <strong>Recurring order:</strong> This order was automatically settled from a recurring schedule.
+                    </p>
+
+                    <div class="producer-order-table-wrap">
+                        <table class="producer-order-table">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Qty</th>
+                                    <th>Unit Price</th>
+                                    <th>Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in entry.items %}
+                                <tr>
+                                    <td>{{ item.product.name }}</td>
+                                    <td>{{ item.quantity }}</td>
+                                    <td>£{{ item.unit_price }}</td>
+                                    <td>£{{ item.get_subtotal }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="producer-order-footer">
+                        <div class="producer-order-contact">
+                            <p><strong>Delivered to:</strong> {{ order.delivery_address }}</p>
+                            <p><strong>Email:</strong> {{ order.customer.email }}</p>
+                            {% if order.customer.phone_number %}
+                                <p><strong>Phone:</strong> {{ order.customer.phone_number }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </article>
+                {% endwith %}
+                {% endwith %}
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="producer-orders-empty">
+            <p>No completed recurring orders yet.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

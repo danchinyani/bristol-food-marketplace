@@ -1,0 +1,72 @@
+{% extends 'marketplace/base.html' %}
+{% block content %}
+<h2>Edit Recipe: {{ recipe.title }}</h2>
+
+<div class="order-card">
+    <form method="post" class="auth-form" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        {% if recipe.images.all %}
+            <div class="auth-field-group">
+                <label class="auth-label">Current Images</label>
+                <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                    {% for recipe_image in recipe.images.all %}
+                        <img src="{{ recipe_image.image.url }}" alt="Image of {{ recipe.title }}" style="width: 140px; height: 100px; object-fit: cover; border-radius: 6px;">
+                    {% endfor %}
+                </div>
+            </div>
+        {% elif recipe.image %}
+            <div class="auth-field-group">
+                <label class="auth-label">Current Image</label>
+                <img src="{{ recipe.image.url }}" alt="Image of {{ recipe.title }}" style="width: 200px; height: 130px; object-fit: cover; border-radius: 6px;">
+            </div>
+        {% endif %}
+
+        <div class="auth-field-group">
+            <label class="auth-label">{{ form.title.label }}</label>
+            {{ form.title }}
+            {% for error in form.title.errors %}<p class="field-error-msg">{{ error }}</p>{% endfor %}
+        </div>
+
+        <div class="auth-field-group">
+            <label class="auth-label">{{ form.description.label }}</label>
+            {{ form.description }}
+            {% for error in form.description.errors %}<p class="field-error-msg">{{ error }}</p>{% endfor %}
+        </div>
+
+        <div class="auth-field-group">
+            <label class="auth-label">{{ form.ingredients.label }}</label>
+            {{ form.ingredients }}
+            {% for error in form.ingredients.errors %}<p class="field-error-msg">{{ error }}</p>{% endfor %}
+        </div>
+
+        <div class="auth-field-group">
+            <label class="auth-label">{{ form.instructions.label }}</label>
+            {{ form.instructions }}
+            {% for error in form.instructions.errors %}<p class="field-error-msg">{{ error }}</p>{% endfor %}
+        </div>
+
+        <div class="auth-field-group">
+            <label class="auth-label">{{ form.seasonal_tag.label }}</label>
+            {{ form.seasonal_tag }}
+            {% for error in form.seasonal_tag.errors %}<p class="field-error-msg">{{ error }}</p>{% endfor %}
+        </div>
+
+        <div class="auth-field-group">
+            <label class="auth-label">{{ form.linked_products.label }}</label>
+            {{ form.linked_products }}
+        </div>
+
+        <div class="auth-field-group">
+            <label class="auth-label" for="{{ form.images.id_for_label }}">{{ form.images.label }}</label>
+            {{ form.images }}
+            <small class="field-help-text">Upload one or more additional recipe images.</small>
+            {% for error in form.images.errors %}<p class="field-error-msg">{{ error }}</p>{% endfor %}
+        </div>
+
+        <button type="submit" class="auth-submit-btn">Save Changes</button>
+        <a href="{% url 'add_recipe' %}" class="nav-link">Cancel</a>
+    </form>
+</div>
+
+{% endblock %}

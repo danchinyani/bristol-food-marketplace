@@ -1,0 +1,49 @@
+{% extends 'marketplace/base.html' %}
+
+{% block title %}Profiles - Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="admin-page">
+
+    <!-- PAGE HEADER -->
+    <section class="admin-panel admin-welcome">
+        <h1>View Profiles</h1>
+        <p>All producer and customer accounts registered on the platform.</p>
+    </section>
+
+    <!-- PROFILES GRID -->
+    <section class="admin-panel">
+        <div class="admin-profiles-grid">
+
+            <!-- PRODUCER PROFILES -->
+            <div class="admin-profile-column">
+                <h3>Producers ({{ total_producers }})</h3>
+                {% for producer in producers %}
+                    <div class="admin-profile-card">
+                        <strong>{{ producer.business_name }}</strong><br>
+                        <span class="admin-meta">{{ producer.contact_name }} &middot; {{ producer.email }}</span><br>
+                        <span class="admin-meta">{{ producer.business_address }}, {{ producer.postcode }}</span>
+                    </div>
+                {% empty %}
+                    <p class="admin-meta">No producer profiles found.</p>
+                {% endfor %}
+            </div>
+
+            <!-- CUSTOMER PROFILES -->
+            <div class="admin-profile-column">
+                <h3>Customers ({{ total_customers }})</h3>
+                {% for customer in customers %}
+                    <div class="admin-profile-card">
+                        <strong>{{ customer.name }}</strong><br>
+                        <span class="admin-meta">{{ customer.email }} &middot; {{ customer.user.username }}</span><br>
+                        <span class="admin-meta">{{ customer.address }}, {{ customer.postcode }}</span>
+                    </div>
+                {% empty %}
+                    <p class="admin-meta">No customer profiles found.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+</div>
+{% endblock %}

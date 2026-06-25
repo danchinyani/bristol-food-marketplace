@@ -1,0 +1,119 @@
+{% extends 'marketplace/base.html' %}
+{% block content %}
+<div class="recurring-page">
+<div class="recurring-page-header">
+    <h2>My Recurring Orders</h2>
+    <p>View your recurring templates, update next-order quantities, and manage subscription status.</p>
+</div>
+
+<div class="recurring-page-action">
+    <a href="{% url 'view_basket' %}" class="nav-link">Set Up New Recurring Order from Basket</a>
+</div>
+
+{% if recurring_orders %}
+    <div class="recurring-orders-list">
+    {% for recurring_order in recurring_orders %}
+    <article class="recurring-order-card">
+        <div class="recurring-order-header">
+            <h3>Recurring Order #{{ recurring_order.id }}</h3>
+            <div class="recurring-status-pill">{{ recurring_order.get_status_display }}</div>
+        </div>
+
+        <dl class="recurring-order-meta-list">
+            <div class="recurring-order-meta-row">
+                <dt>Frequency</dt>
+                <dd>{{ recurring_order.get_frequency_display }}</dd>
+            </div>
+            <div class="recurring-order-meta-row">
+                <dt>Repeats On</dt>
+                <dd>{{ recurring_order.get_recurrence_day_display }}</dd>
+            </div>
+            <div class="recurring-order-meta-row">
+                <dt>Delivery Day</dt>
+                <dd>{{ recurring_order.get_delivery_schedule_display }}</dd>
+            </div>
+            <div class="recurring-order-meta-row">
+                <dt>Next Order</dt>
+                <dd>{{ recurring_order.next_order_date|date:"d M Y" }}</dd>
+            </div>
+            <div class="recurring-order-meta-row">
+                <dt>Status</dt>
+                <dd>{{ recurring_order.get_status_display }}</dd>
+            </div>
+        </dl>
+
+        <h4 class="recurring-section-title">Template Items</h4>
+        <table class="recurring-order-table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Template Qty</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in recurring_order.items.all %}
+                <tr>
+                    <td>{{ item.product.name }}</td>
+                    <td>{{ item.quantity }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <h4 class="recurring-section-title">Next Scheduled Order</h4>
+        <p class="recurring-info-text">Adjust quantities for {{ recurring_order.next_order_date|date:"d M Y" }}. These changes apply only to that next order and do not update the recurring template.</p>
+
+        <form method="post" action="{% url 'update_recurring_order_next_order' recurring_order.id %}" class="recurring-order-form">
+            {% csrf_token %}
+            <table class="recurring-order-table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Template Qty</th>
+                        <th>Next Order Qty</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in recurring_order.next_order_items %}
+                    <tr>
+                        <td>
+                            {{ item.product.name }}
+                            {% if item.has_override %}<strong>(modified)</strong>{% endif %}
+                        </td>
+                        <td>{{ item.template_quantity }}</td>
+                        <td>
+                            <input type="number" min="0" name="quantity_{{ item.product.id }}" value="{{ item.quantity }}" class="auth-field">
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <button type="submit" class="auth-submit-btn recurring-primary-btn">Save Next Order Changes</button>
+        </form>
+
+        <div class="recurring-order-footer">
+            <p><strong>Delivering to:</strong> {{ recurring_order.delivery_address }}</p>
+
+            <form method="post" action="{% url 'update_recurring_order_status' recurring_order.id %}" class="recurring-status-form">
+                {% csrf_token %}
+                <label for="recurring-status-{{ recurring_order.id }}">Recurring Status</label>
+                <select name="status" id="recurring-status-{{ recurring_order.id }}">
+                    <option value="ACTIVE" {% if recurring_order.status == 'ACTIVE' %}selected{% endif %}>Active</option>
+                    <option value="PAUSED" {% if recurring_order.status == 'PAUSED' %}selected{% endif %}>Paused</option>
+                    <option value="CANCELLED" {% if recurring_order.status == 'CANCELLED' %}selected{% endif %}>Cancelled</option>
+                </select>
+                <button type="submit" class="recurring-secondary-btn">Update</button>
+            </form>
+        </div>
+    </article>
+    {% endfor %}
+    </div>
+
+{% else %}
+    <div class="recurring-empty-state">
+        <p>You have no recurring orders yet. <a href="{% url 'view_basket' %}">Add items to your basket</a> and set up a recurring order from there.</p>
+    </div>
+{% endif %}
+</div>
+
+{% endblock %}

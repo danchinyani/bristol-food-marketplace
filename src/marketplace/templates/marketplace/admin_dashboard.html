@@ -1,0 +1,50 @@
+{% extends 'marketplace/base.html' %}
+
+{% block title %}Admin Dashboard - Bristol Food Network{% endblock %}
+
+{% block content %}
+<div class="admin-page">
+
+    <!-- ADMIN WELCOME PANEL -->
+    <section class="admin-panel admin-welcome">
+        <h1>Admin Dashboard</h1>
+        <p>Welcome back, <strong>{{ user.username }}</strong>. Use the left-hand menu to navigate between sections.</p>
+    </section>
+
+    <!-- KPI SUMMARY CARDS -->
+    <section class="admin-panel">
+        <h2>Overview</h2>
+        <div class="admin-kpi-row">
+            <div class="admin-kpi-card">
+                <p class="admin-kpi-label">Total Orders</p>
+                <p class="admin-kpi-value">{{ total_orders }}</p>
+            </div>
+            <div class="admin-kpi-card">
+                <p class="admin-kpi-label">Total Producers</p>
+                <p class="admin-kpi-value">{{ total_producers }}</p>
+            </div>
+            <div class="admin-kpi-card">
+                <p class="admin-kpi-label">Total Customers</p>
+                <p class="admin-kpi-value">{{ total_customers }}</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- QUICK LINKS -->
+    <section class="admin-panel">
+        <h2>Quick Links</h2>
+        <div class="admin-kpi-row">
+            <a href="{% url 'admin_profiles' %}" class="admin-kpi-card admin-quick-link">
+                <p class="admin-kpi-label">View Profiles</p>
+            </a>
+            <a href="{% url 'admin_orders' %}" class="admin-kpi-card admin-quick-link">
+                <p class="admin-kpi-label">Order History</p>
+            </a>
+            <a href="{% url 'admin_reports' %}" class="admin-kpi-card admin-quick-link">
+                <p class="admin-kpi-label">Reports</p>
+            </a>
+        </div>
+    </section>
+
+</div>
+{% endblock %}

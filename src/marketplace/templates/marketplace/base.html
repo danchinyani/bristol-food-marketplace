@@ -1,0 +1,86 @@
+﻿{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Bristol Food Network{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'marketplace/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'marketplace/bristol-harvest.css' %}">
+</head>
+<body>
+
+    <header class="top-bar">
+        <div class="brand-name">Bristol Regional Food Network</div>
+
+        <div class="basket-icon-wrapper">
+            {% if user.is_authenticated %}
+                {% if is_customer %}
+                    <a href="{% url 'view_basket' %}" class="basket-icon-link" title="View Basket">
+                        {% if basket_count > 0 %}
+                            <span class="basket-count-badge">{{ basket_count }}</span>
+                        {% endif %}
+                        Basket
+                    </a>
+                {% endif %}
+            {% endif %}
+        </div>
+
+        <nav class="main-nav">
+            <a href="{% url 'home' %}" class="nav-link">Home</a>
+            {% if user.is_authenticated %}
+                <span>Logged in as: <strong>{{ user.username }}</strong></span>
+                <a href="{% url 'notifications' %}" class="nav-link">
+                    Alerts {% if notification_count > 0 %}({{ notification_count }}){% endif %}
+                </a>
+                <a href="{% url 'edit_account' %}" class="nav-link">Settings</a>
+                <form action="{% url 'logout' %}" method="post" class="nav-inline-form">
+                    {% csrf_token %}
+                    <button type="submit" class="nav-link-btn">Logout</button>
+                </form>
+            {% else %}
+                <a href="{% url 'signup_choice' %}" class="nav-link">Sign Up</a>
+                <a href="{% url 'login' %}" class="nav-link">Login</a>
+            {% endif %}
+        </nav>
+    </header>
+
+    <div class="container">
+        <aside class="sidebar">
+            <h3>Menu</h3>
+            <ul>
+                {% if user.is_authenticated and is_admin %}
+                    <li><a href="{% url 'admin_dashboard' %}" class="nav-link">Dashboard</a></li>
+                    <li><a href="{% url 'admin_profiles' %}" class="nav-link">View Profiles</a></li>
+                    <li><a href="{% url 'admin_orders' %}" class="nav-link">View Order History</a></li>
+                    <li><a href="{% url 'admin_reports' %}" class="nav-link">Reports</a></li>
+                {% else %}
+                    <li><a href="{% url 'home' %}" class="nav-link">Home</a></li>
+                {% endif %}
+                {% if user.is_authenticated and is_producer %}
+                    <li><a href="{% url 'add_product' %}" class="nav-link">Add Product</a></li>
+                    <li><a href="{% url 'producer_bio' %}" class="nav-link">My Bio</a></li>
+                    <li><a href="{% url 'producer_orders' %}" class="nav-link">Incoming Orders</a></li>
+                    <li><a href="{% url 'producer_completed_orders' %}" class="nav-link">Completed Orders</a></li>
+                    <li><a href="{% url 'producer_reviews' %}" class="nav-link">Customer Reviews</a></li>
+                    <li><a href="{% url 'payment_settlements' %}" class="nav-link">Settlements</a></li>
+                    <li><a href="{% url 'add_recipe' %}" class="nav-link">My Recipes</a></li>
+                {% endif %}
+                {% if user.is_authenticated and is_customer %}
+                    <li><a href="{% url 'customer_market' %}" class="nav-link">Market</a></li>
+                    <li><a href="{% url 'view_basket' %}" class="nav-link">Basket{% if basket_count > 0 %} ({{ basket_count }}){% endif %}</a></li>
+                    <li><a href="{% url 'order_history' %}" class="nav-link">My Orders</a></li>
+                    <li><a href="{% url 'manage_recurring_orders' %}" class="nav-link">Recurring Orders</a></li>
+                    <li><a href="{% url 'recipe_list' %}" class="nav-link">Recipes</a></li>
+                {% endif %}
+            </ul>
+        </aside>
+
+        <main class="content">
+            {% block content %}
+            {% endblock %}
+        </main>
+    </div>
+
+</body>
+</html>

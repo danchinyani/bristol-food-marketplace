@@ -1,0 +1,13 @@
+Django==5.0.2
+psycopg2-binary==2.9.9
+python-dotenv==1.0.1
+django-phonenumber-field[phonenumbers]
+# lighter
+reportlab
+stripe
+requests
+cloudinary
+django-cloudinary-storage
+Pillow
+celery[redis]==5.3.6
+redis==5.0.1

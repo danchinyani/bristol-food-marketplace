@@ -1,0 +1,178 @@
+
+[
+  {
+    "model": "auth.user",
+    "pk": 1,
+    "fields": {
+      "username": "bristol_valley",
+      "password": "pbkdf2_sha256$720000$test$YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXo=",
+      "email": "jane@bristolvalleyfarm.com",
+      "is_staff": false,
+      "is_active": true,
+      "is_superuser": false
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 2,
+    "fields": {
+      "username": "hillside_dairy",
+      "password": "pbkdf2_sha256$720000$test$YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXo=",
+      "email": "john@hillsidedairy.com",
+      "is_staff": false,
+      "is_active": true,
+      "is_superuser": false
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 3,
+    "fields": {
+      "username": "robert_johnson",
+      "password": "pbkdf2_sha256$720000$test$YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXo=",
+      "email": "robert.johnson@email.com",
+      "is_staff": false,
+      "is_active": true,
+      "is_superuser": false
+    }
+  },
+  {
+    "model": "marketplace.producer",
+    "pk": 1,
+    "fields": {
+      "user": 1,
+      "business_name": "Bristol Valley Farm",
+      "contact_name": "Jane Smith",
+      "email": "jane@bristolvalleyfarm.com",
+      "phone_number": "+441179123456",
+      "business_address": "1 Valley Road, Bristol",
+      "postcode": "BS14DJ",
+      "bio": "We are a family-run farm producing fresh organic vegetables in the heart of Bristol."
+    }
+  },
+  {
+    "model": "marketplace.producer",
+    "pk": 2,
+    "fields": {
+      "user": 2,
+      "business_name": "Hillside Dairy",
+      "contact_name": "John Hill",
+      "email": "john@hillsidedairy.com",
+      "phone_number": "+441179654321",
+      "business_address": "2 Hillside Lane, Bristol",
+      "postcode": "BS27AB",
+      "bio": "Award-winning dairy farm supplying fresh milk, cheese and eggs to Bristol."
+    }
+  },
+  {
+    "model": "marketplace.customer",
+    "pk": 1,
+    "fields": {
+      "user": 3,
+      "name": "Robert Johnson",
+      "email": "robert.johnson@email.com",
+      "phone_number": "+447700900123",
+      "address": "45 Park Street, Bristol",
+      "postcode": "BS15JG"
+    }
+  },
+  {
+    "model": "marketplace.product",
+    "pk": 1,
+    "fields": {
+      "producer": 1,
+      "name": "Organic Carrots",
+      "description": "Fresh organic carrots grown in Bristol Valley. Perfect for soups and salads.",
+      "price": "1.50",
+      "unit": "per kg",
+      "stock_quantity": 50,
+      "is_organic": true,
+      "allergens": [],
+      "category": "VEG"
+    }
+  },
+  {
+    "model": "marketplace.product",
+    "pk": 2,
+    "fields": {
+      "producer": 1,
+      "name": "Organic Tomatoes",
+      "description": "Juicy organic tomatoes, freshly picked from our greenhouse.",
+      "price": "2.00",
+      "unit": "per kg",
+      "stock_quantity": 30,
+      "is_organic": true,
+      "allergens": [],
+      "category": "VEG"
+    }
+  },
+  {
+    "model": "marketplace.product",
+    "pk": 3,
+    "fields": {
+      "producer": 1,
+      "name": "Organic Free Range Eggs",
+      "description": "Fresh organic eggs from free-range hens, collected daily.",
+      "price": "3.50",
+      "unit": "per dozen",
+      "stock_quantity": 50,
+      "is_organic": true,
+      "allergens": [
+        "EGGS"
+      ],
+      "category": "DAIRY"
+    }
+  },
+  {
+    "model": "marketplace.product",
+    "pk": 4,
+    "fields": {
+      "producer": 2,
+      "name": "Fresh Milk",
+      "description": "Full fat fresh milk from our Hillside herd, pasteurised daily.",
+      "price": "1.20",
+      "unit": "per litre",
+      "stock_quantity": 40,
+      "is_organic": false,
+      "allergens": [
+        "MILK"
+      ],
+      "category": "DAIRY"
+    }
+  },
+  {
+    "model": "marketplace.product",
+    "pk": 5,
+    "fields": {
+      "producer": 2,
+      "name": "Cheddar Cheese",
+      "description": "Mature cheddar cheese made from our own herd's milk.",
+      "price": "4.50",
+      "unit": "per 250g",
+      "stock_quantity": 20,
+      "is_organic": false,
+      "allergens": [
+        "MILK"
+      ],
+      "category": "DAIRY"
+    }
+  },
+  {
+    "model": "marketplace.product",
+    "pk": 6,
+    "fields": {
+      "producer": 1,
+      "name": "Walnut Bread",
+      "description": "Freshly baked walnut bread using locally milled flour.",
+      "price": "3.00",
+      "unit": "per loaf",
+      "stock_quantity": 15,
+      "is_organic": false,
+      "allergens": [
+        "GLUTEN",
+        "NUTS"
+      ],
+      "category": "BAKERY"
+    }
+  }
+]

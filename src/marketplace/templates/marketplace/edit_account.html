@@ -1,0 +1,171 @@
+{% extends 'marketplace/base.html' %}
+
+{% block title %}Account Settings - Bristol Food Network{% endblock %}
+
+{% block content %}
+<div style="max-width: 950px; margin: 0 auto; padding-top: 30px;">
+
+    <h2 class="auth-title">Account Settings</h2>
+    <p class="auth-subtitle">Manage your login details, contact email, and delivery postcode.</p>
+
+    {% if messages %}
+        <div class="market-messages">
+            {% for message in messages %}
+                <p class="market-message market-message--{{ message.tags }}">{{ message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div style="display: grid; grid-template-columns: 260px 1fr; gap: 24px; align-items: start;">
+
+        <!-- LEFT SIDEBAR -->
+        <aside class="auth-form" style="padding: 20px;">
+            <h3 style="margin-top: 0;">Settings</h3>
+
+            <button type="button" onclick="showPanel('overview')" class="nav-link-btn" style="display:block; margin-bottom:14px;">
+                Account Overview
+            </button>
+
+            <button type="button" onclick="showPanel('password')" class="nav-link-btn" style="display:block; margin-bottom:14px;">
+                Security & Password
+            </button>
+
+            <button type="button" onclick="showPanel('email')" class="nav-link-btn" style="display:block; margin-bottom:14px;">
+                Email Address
+            </button>
+
+            <button type="button" onclick="showPanel('postcode')" class="nav-link-btn" style="display:block;">
+                Delivery Postcode
+            </button>
+        </aside>
+
+        <!-- RIGHT CONTENT -->
+        <section>
+
+            <!-- OVERVIEW -->
+            <div id="overview" class="settings-panel auth-form">
+                <h3 style="margin-top:0;">Account Overview</h3>
+                <p>Review your current account details.</p>
+
+                <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:16px; margin-top:20px;">
+                    <div style="background:#ffffff; border:1px solid #c8e6c9; border-radius:8px; padding:16px;">
+                        <strong>Username</strong>
+                        <p>{{ user.username }}</p>
+                    </div>
+
+                    <div style="background:#ffffff; border:1px solid #c8e6c9; border-radius:8px; padding:16px;">
+                        <strong>Email</strong>
+                        <p>{{ profile.email }}</p>
+                    </div>
+
+                    <div style="background:#ffffff; border:1px solid #c8e6c9; border-radius:8px; padding:16px;">
+                        <strong>Postcode</strong>
+                        <p>{{ profile.postcode }}</p>
+                    </div>
+
+                    <div style="background:#ffffff; border:1px solid #c8e6c9; border-radius:8px; padding:16px;">
+                        <strong>Account Type</strong>
+                        <p>
+                            {% if is_producer %}
+                                Producer
+                            {% elif is_customer %}
+                                Customer
+                            {% else %}
+                                User
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PASSWORD -->
+            <div id="password" class="settings-panel auth-form" style="display:none;">
+                <h3 style="margin-top:0;">Security & Password</h3>
+                <p>Change your password securely. You will be logged out afterwards to protect your account.</p>
+
+                <div style="background:#fff8e1; border:1px solid #ffe082; border-radius:8px; padding:14px; margin:18px 0;">
+                    <strong>Security notice:</strong>
+                    After changing your password, you must log in again using the new password.
+                </div>
+
+                <a href="{% url 'change_password' %}"
+                   class="auth-submit-btn"
+                   style="display:inline-block; width:auto; padding:12px 28px; text-align:center; text-decoration:none;">
+                    Change Password
+                </a>
+            </div>
+
+            <!-- EMAIL -->
+            <form id="email" method="post" class="settings-panel auth-form" style="display:none;">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="change_email">
+
+                <h3 style="margin-top:0;">Email Address</h3>
+                <p>Update the email address linked to your account.</p>
+
+                <div style="background:#ffffff; border:1px solid #c8e6c9; border-radius:8px; padding:14px; margin:18px 0;">
+                    <strong>Current email:</strong>
+                    <p style="margin-bottom:0;">{{ profile.email }}</p>
+                </div>
+
+                {% for field in email_form %}
+                    <div class="auth-field-group">
+                        <label class="auth-label">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                            <div class="field-error-msg">{{ field.errors.as_text }}</div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+
+                <button type="submit" class="auth-submit-btn" style="width:auto; padding:12px 28px;">
+                    Update Email
+                </button>
+            </form>
+
+            <!-- POSTCODE -->
+            <form id="postcode" method="post" class="settings-panel auth-form" style="display:none;">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="change_postcode">
+
+                <h3 style="margin-top:0;">Delivery Postcode</h3>
+                <p>Your postcode is used for delivery details and local marketplace distance features.</p>
+
+                <div style="background:#ffffff; border:1px solid #c8e6c9; border-radius:8px; padding:14px; margin:18px 0;">
+                    <strong>Current postcode:</strong>
+                    <p style="margin-bottom:0;">{{ profile.postcode }}</p>
+                </div>
+
+                {% for field in postcode_form %}
+                    <div class="auth-field-group">
+                        <label class="auth-label">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                            <div class="field-error-msg">{{ field.errors.as_text }}</div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+
+                <button type="submit" class="auth-submit-btn" style="width:auto; padding:12px 28px;">
+                    Update Postcode
+                </button>
+            </form>
+
+        </section>
+    </div>
+
+    <p class="auth-footer-text">
+        <a href="{% url 'home' %}">← Back to Home</a>
+    </p>
+</div>
+
+<script>
+function showPanel(panelId) {
+    document.querySelectorAll('.settings-panel').forEach(function(panel) {
+        panel.style.display = 'none';
+    });
+
+    document.getElementById(panelId).style.display = 'block';
+}
+</script>
+{% endblock %}

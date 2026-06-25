@@ -1,0 +1,127 @@
+{% extends 'marketplace/base.html' %}
+
+{% block title %}Reports - Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="admin-page">
+
+    <!-- PAGE HEADER -->
+    <section class="admin-panel admin-welcome">
+        <h1>Reports</h1>
+        <p>Select a report type and optional date range, then click Generate.</p>
+    </section>
+
+    <!-- REPORT FORM -->
+    <section class="admin-panel">
+        <h2>Generate Report</h2>
+        <form method="get" class="admin-report-form">
+            <div class="admin-report-form-row">
+                <div class="admin-report-field">
+                    <label for="report_type">Report Type</label>
+                    <select name="report_type" id="report_type" required>
+                        <option value="" disabled {% if not report_type %}selected{% endif %}>-- Choose --</option>
+                        <option value="financial" {% if report_type == 'financial' %}selected{% endif %}>Financial</option>
+                        <option value="platform_usage" {% if report_type == 'platform_usage' %}selected{% endif %}>Platform Usage</option>
+                    </select>
+                </div>
+                <div class="admin-report-field">
+                    <label for="date_from">From</label>
+                    <input type="date" name="date_from" id="date_from" value="{{ date_from }}">
+                </div>
+                <div class="admin-report-field">
+                    <label for="date_to">To</label>
+                    <input type="date" name="date_to" id="date_to" value="{{ date_to }}">
+                </div>
+                <div class="admin-report-field admin-report-submit">
+                    <button type="submit" class="admin-report-btn">Generate</button>
+                </div>
+            </div>
+        </form>
+    </section>
+
+    <!-- REPORT RESULTS -->
+    {% if report_data %}
+
+        <section class="admin-panel">
+            <a
+                href="{% url 'download_admin_report_pdf' %}?report_type={{ report_type }}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}"
+                class="admin-report-btn"
+            >
+                Export Report (PDF)
+            </a>
+        </section>
+
+        {% if report_data.type == 'financial' %}
+        <!-- FINANCIAL REPORT -->
+        <section class="admin-panel">
+            <h2>Financial Report</h2>
+            {% if date_from or date_to %}
+                <p class="admin-meta">Period: {{ date_from|default:"beginning" }} to {{ date_to|default:"present" }}</p>
+            {% else %}
+                <p class="admin-meta">Period: All time</p>
+            {% endif %}
+            <div class="admin-kpi-row">
+                <div class="admin-kpi-card">
+                    <p class="admin-kpi-label">Total Sales</p>
+                    <p class="admin-kpi-value">&pound;{{ report_data.total_sales }}</p>
+                </div>
+                <div class="admin-kpi-card">
+                    <p class="admin-kpi-label">Commission Earned (5%)</p>
+                    <p class="admin-kpi-value">&pound;{{ report_data.total_commission }}</p>
+                </div>
+                <div class="admin-kpi-card">
+                    <p class="admin-kpi-label">Producer Payouts (95%)</p>
+                    <p class="admin-kpi-value">&pound;{{ report_data.total_producer_payouts }}</p>
+                </div>
+            </div>
+            <div class="admin-kpi-row" style="margin-top: 16px;">
+                <div class="admin-kpi-card">
+                    <p class="admin-kpi-label">Orders</p>
+                    <p class="admin-kpi-value">{{ report_data.order_count }}</p>
+                </div>
+                <div class="admin-kpi-card">
+                    <p class="admin-kpi-label">Average Order Value</p>
+                    <p class="admin-kpi-value">&pound;{{ report_data.average_order_value }}</p>
+                </div>
+            </div>
+        </section>
+        {% endif %}
+
+        {% if report_data.type == 'platform_usage' %}
+        <!-- PLATFORM USAGE REPORT -->
+        <section class="admin-panel">
+            <h2>Platform Usage Report</h2>
+            {% if date_from or date_to %}
+                <p class="admin-meta">Period: {{ date_from|default:"beginning" }} to {{ date_to|default:"present" }}</p>
+            {% else %}
+                <p class="admin-meta">Period: All time</p>
+            {% endif %}
+            <div class="admin-kpi-row">
+                <div class="admin-kpi-card">
+                    <p class="admin-kpi-label">Total Accounts</p>
+                    <p class="admin-kpi-value">{{ report_data.total_accounts }}</p>
+                </div>
+                <div class="admin-kpi-card">
+                    <p class="admin-kpi-label">New Accounts (in period)</p>
+                    <p class="admin-kpi-value">{{ report_data.new_accounts }}</p>
+                </div>
+                <div class="admin-kpi-card">
+                    <p class="admin-kpi-label">Products Listed</p>
+                    <p class="admin-kpi-value">{{ report_data.total_products }}</p>
+                </div>
+                <div class="admin-kpi-card">
+                    <p class="admin-kpi-label">Orders Placed</p>
+                    <p class="admin-kpi-value">{{ report_data.total_orders }}</p>
+                </div>
+            </div>
+        </section>
+        {% endif %}
+
+    {% elif report_type %}
+        <section class="admin-panel">
+            <p class="admin-meta">No results found for the selected criteria.</p>
+        </section>
+    {% endif %}
+
+</div>
+{% endblock %}

@@ -1,0 +1,86 @@
+{% extends 'marketplace/base.html' %}
+{% block content %}
+
+<div class="recipe-detail-card">
+
+    <!-- TITLE HEADER -->
+    <div class="recipe-detail-header">
+        <h2 class="recipe-detail-title">{{ recipe.title }}</h2>
+        <div class="recipe-detail-meta">
+            <span>By: <strong>{{ recipe.producer.business_name }}</strong></span>
+            <span>Season: <strong>{{ recipe.get_seasonal_tag_display }}</strong></span>
+            <span>Added: {{ recipe.created_at|date:"d M Y" }}</span>
+        </div>
+    </div>
+
+    <!-- IMAGES -->
+    {% if recipe.images.all %}
+    <div class="recipe-detail-section">
+        <h3 class="recipe-detail-heading">Recipe Images</h3>
+        <div class="recipe-image-strip">
+            {% for recipe_image in recipe.images.all %}
+                <img src="{{ recipe_image.image.url }}" alt="Image of {{ recipe.title }}">
+            {% endfor %}
+        </div>
+    </div>
+    {% elif recipe.image %}
+    <div class="recipe-detail-section">
+        <h3 class="recipe-detail-heading">Recipe Image</h3>
+        <div class="recipe-image-strip">
+            <img src="{{ recipe.image.url }}" alt="Image of {{ recipe.title }}">
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- DESCRIPTION -->
+    <div class="recipe-detail-section">
+        <h3 class="recipe-detail-heading">About this Recipe</h3>
+        <p>{{ recipe.description }}</p>
+    </div>
+
+    <!-- INGREDIENTS -->
+    <div class="recipe-detail-section">
+        <h3 class="recipe-detail-heading">Ingredients</h3>
+        <pre class="recipe-detail-pre">{{ recipe.ingredients }}</pre>
+    </div>
+
+    <!-- INSTRUCTIONS -->
+    <div class="recipe-detail-section">
+        <h3 class="recipe-detail-heading">Instructions</h3>
+        <pre class="recipe-detail-pre">{{ recipe.instructions }}</pre>
+    </div>
+
+    <!-- LINKED PRODUCTS -->
+    {% if linked_products %}
+    <div class="recipe-detail-section">
+        <h3 class="recipe-detail-heading">Products Used in this Recipe</h3>
+        <table class="recipe-detail-table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Producer</th>
+                    <th>Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in linked_products %}
+                <tr>
+                    <td>{{ product.name }}</td>
+                    <td>{{ product.producer.business_name }}</td>
+                    <td>£{{ product.price }} / {{ product.unit }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    <!-- BACK LINKS -->
+    <div class="recipe-detail-footer">
+        <a href="{% url 'recipe_list' %}" class="nav-link">Back to Recipes</a>
+        <a href="{% url 'producer_bio_public' recipe.producer.id %}" class="nav-link">View Producer Profile</a>
+    </div>
+
+</div>
+
+{% endblock %}

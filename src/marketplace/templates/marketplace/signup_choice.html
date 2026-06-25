@@ -1,0 +1,20 @@
+{% extends 'marketplace/base.html' %}
+
+{% block content %}
+<div class="choice-container">
+    <h2 class="choice-title">Join the Bristol Regional Food Network</h2>
+    <p class="choice-subtitle">Please select your account type to continue:</p>
+    
+    <div class="choice-card-wrapper">
+        <a href="{% url 'signup_producer' %}" class="choice-card producer-card">
+            <h3>I am a Producer</h3>
+            <p>I want to list and sell local produce.</p>
+        </a>
+
+        <a href="{% url 'signup_customer' %}" class="choice-card customer-card">
+            <h3>I am a Customer</h3>
+            <p>I want to browse and buy local food.</p>
+        </a>
+    </div>
+</div>
+{% endblock %}

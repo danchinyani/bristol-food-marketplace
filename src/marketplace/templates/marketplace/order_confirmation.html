@@ -1,0 +1,82 @@
+{% extends 'marketplace/base.html' %}
+
+{% block title %}Order Confirmed - Bristol Food Network{% endblock %}
+
+{% block content %}
+<!-- ORDER CONFIRMATION PAGE - SHOWN AFTER A SUCCESSFUL CHECKOUT -->
+<div class="registration-container producer-action-container">
+    <h2 class="auth-title">Order Confirmed!</h2>
+    <p class="auth-subtitle">Thank you for your order. Here is your summary.</p>
+
+    <!-- ORDER SUMMARY PANEL - SHOWS ALL DETAILS OF THE PLACED ORDER -->
+    <div class="producer-panel producer-action-panel">
+
+        <!-- ORDER REFERENCE AND DATE -->
+        <p class="producer-product-meta">
+            <strong>Order Reference:</strong> #{{ order.id }}
+        </p>
+        <p class="producer-product-meta">
+            <strong>Order Date:</strong> {{ order.created_at|date:"d M Y, H:i" }}
+        </p>
+        <p class="producer-product-meta">
+            <strong>Status:</strong> {{ order.get_status_display }}
+        </p>
+
+        <!-- DELIVERY DETAILS SUMMARY -->
+        <p class="producer-product-meta">
+            <strong>Delivery Address:</strong> {{ order.delivery_address }}
+        </p>
+        <p class="producer-product-meta">
+            <strong>Preferred Delivery Date:</strong> {{ order.preferred_delivery_date|date:"d M Y" }}
+        </p>
+
+        <!-- MASKED CARD DETAILS FOR REFERENCE -->
+        <p class="producer-product-meta">
+            <strong>Card:</strong> **** **** **** {{ order.card_number_last4 }}
+        </p>
+
+        {% if stripe_enabled %}
+            <p class="producer-product-meta stripe-confirmation-line">
+                <strong>Payment:</strong> Processed via Stripe{% if stripe_test_mode %} (Test Mode){% endif %}
+            </p>
+        {% endif %}
+
+        <!-- TABLE OF ITEMS INCLUDED IN THE ORDER -->
+        <h3 class="basket-checkout-title">Items Ordered</h3>
+        <table class="basket-table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Unit Price</th>
+                    <th>Quantity</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in order_items %}
+                    <tr class="basket-row">
+                        <td>{{ item.product.name }}</td>
+                        <!-- UNIT PRICE IS THE SNAPSHOTTED VALUE AT TIME OF PURCHASE -->
+                        <td>£{{ item.unit_price }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>£{{ item.get_subtotal }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <!-- ORDER GRAND TOTAL -->
+                <tr class="basket-total-row">
+                    <td colspan="3"><strong>Total Paid</strong></td>
+                    <td><strong>£{{ order.total_price }}</strong></td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <!-- LINK BACK TO THE MARKET FOR FURTHER SHOPPING -->
+        <div class="producer-footer-text">
+            <a href="{% url 'customer_market' %}" class="producer-bio-link">Continue Shopping</a>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

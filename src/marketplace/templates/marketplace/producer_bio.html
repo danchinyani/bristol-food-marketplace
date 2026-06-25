@@ -1,0 +1,44 @@
+{% extends 'marketplace/base.html' %}
+
+{% block title %}My Bio - Bristol Food Network{% endblock %}
+
+{% block content %}
+<div class="registration-container producer-bio-container">
+    <h2 class="auth-title">My Producer Bio</h2>
+    <p class="auth-subtitle">This is how customers see your business profile. Add a description to help them get to know you.</p>
+
+    <div class="producer-panel producer-bio-info-panel">
+        <p class="producer-product-meta"><strong>Business name:</strong> {{ producer.business_name }}</p>
+        <p class="producer-product-meta"><strong>Address:</strong> {{ producer.business_address }}, {{ producer.postcode }}</p>
+        <p class="producer-product-meta producer-bio-last-meta"><strong>Email:</strong> {{ producer.email }}</p>
+    </div>
+
+    <form method="post" class="auth-form producer-bio-form">
+        {% csrf_token %}
+
+        {% for field in form %}
+            <div class="auth-field-group">
+                <label class="auth-label" for="{{ field.id_for_label }}">
+                    {{ field.label }}
+                </label>
+
+                {{ field }}
+
+                {% if field.errors %}
+                    <div class="field-error-msg producer-field-error-msg">
+                        {{ field.errors }}
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+
+        <button type="submit" class="auth-submit-btn producer-submit-btn">
+            Save Bio
+        </button>
+    </form>
+
+    <p class="auth-footer-text producer-footer-text">
+        <a href="{% url 'home' %}" class="producer-home-link">← Back to home</a>
+    </p>
+</div>
+{% endblock %}

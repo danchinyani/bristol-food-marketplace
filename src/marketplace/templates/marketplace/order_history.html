@@ -1,0 +1,88 @@
+{% extends 'marketplace/base.html' %}
+{% block content %}
+<h2>My Order History</h2>
+{% if orders %}
+    {% for order in orders %}
+    <div class="order-card">
+        <div class="order-header">
+            <span><strong>Order #{{ order.id }}</strong></span>
+            <span>Placed: {{ order.created_at|date:"d M Y" }}</span>
+            <span>Delivery: {{ order.preferred_delivery_date|date:"d M Y" }}</span>
+            <span>Status: <strong>{{ order.get_status_display }}</strong></span>
+            <span>Total: <strong>£{{ order.total_price }}</strong></span>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Producer</th>
+                    <th>Qty</th>
+                    <th>Unit Price</th>
+                    <th>Subtotal</th>
+                    <th>Review</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in order.items.all %}
+                <tr>
+                    <td>{{ item.product.name }}</td>
+                    <td>{{ item.product.producer.business_name }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>£{{ item.unit_price }}</td>
+                    <td>£{{ item.get_subtotal }}</td>
+                    <td>
+                        {% if order.status == 'DELIVERED' %}
+                        <!-- ITEM REVIEW FORM - ONLY SHOWN AFTER PRODUCER MARKS ORDER AS DELIVERED -->
+                        <form method="post" action="{% url 'submit_product_review' item.id %}" class="order-review-form">
+                            {% csrf_token %}
+
+                            <label class="order-review-label" for="rating-{{ item.id }}">Rating</label>
+                            <select name="rating" id="rating-{{ item.id }}" class="order-review-rating" required>
+                                <option value="">Select</option>
+                                <option value="1" {% if item.customer_review and item.customer_review.rating == 1 %}selected{% endif %}>1</option>
+                                <option value="2" {% if item.customer_review and item.customer_review.rating == 2 %}selected{% endif %}>2</option>
+                                <option value="3" {% if item.customer_review and item.customer_review.rating == 3 %}selected{% endif %}>3</option>
+                                <option value="4" {% if item.customer_review and item.customer_review.rating == 4 %}selected{% endif %}>4</option>
+                                <option value="5" {% if item.customer_review and item.customer_review.rating == 5 %}selected{% endif %}>5</option>
+                            </select>
+
+                            <label class="order-review-label" for="comment-{{ item.id }}">Comment</label>
+                            <textarea
+                                name="comment"
+                                id="comment-{{ item.id }}"
+                                class="order-review-comment"
+                                rows="2"
+                                placeholder="Share your feedback"
+                            >{% if item.customer_review %}{{ item.customer_review.comment }}{% endif %}</textarea>
+                            <label class="order-review-label">
+                                <input type="checkbox" name="is_anonymous" {% if item.customer_review and item.customer_review.is_anonymous %}checked{% endif %}>
+                                Review anonymously
+                            </label>
+
+                            <button type="submit" class="order-review-btn">
+                                {% if item.customer_review %}Update Review{% else %}Submit Review{% endif %}
+                            </button>
+                        </form>
+                        {% else %}
+                        <span class="review-pending-msg">Available after delivery</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="order-footer">
+            <p>Delivered to: {{ order.delivery_address }}</p>
+            <p>Card ending: **** {{ order.card_number_last4 }}</p>
+            <form method="post" action="{% url 'reorder' order.id %}">
+                {% csrf_token %}
+                <button type="submit">Reorder</button>
+            </form>
+            <a href="{% url 'download_receipt' order.id %}" class="nav-link">Download Receipt</a>
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+    <p>You have no past orders yet. <a href="{% url 'customer_market' %}">Start shopping</a></p>
+{% endif %}
+{% endblock %}

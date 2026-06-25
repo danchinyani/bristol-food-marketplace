@@ -1,0 +1,64 @@
+{% extends 'marketplace/base.html' %}
+{% block content %}
+<h2>Payment Settlements</h2>
+
+<!-- YEAR TO DATE SUMMARY -->
+<div class="order-card">
+    <div class="order-header">
+        <span><strong>Year to Date Summary</strong></span>
+    </div>
+    <div class="order-footer">
+        <p>Gross Total: <strong>£{{ ytd_gross }}</strong></p>
+        <p>Network Commission (5%): <strong>£{{ ytd_commission }}</strong></p>
+        <p>Your Total Earnings (95%): <strong>£{{ ytd_producer_payment }}</strong></p>
+    </div>
+</div>
+
+{% if weeks %}
+    {% for week in weeks %}
+    <div class="order-card">
+        <div class="order-header">
+            <span><strong>Week: {{ week.week_start|date:"d M Y" }} - {{ week.week_end|date:"d M Y" }}</strong></span>
+            <span>Gross: £{{ week.gross_total }}</span>
+            <span>Commission: £{{ week.commission }}</span>
+            <span>Your Payment: <strong>£{{ week.producer_payment }}</strong></span>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Order #</th>
+                    <th>Product</th>
+                    <th>Qty</th>
+                    <th>Subtotal</th>
+                    <th>Commission (5%)</th>
+                    <th>You Receive (95%)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in week.items %}
+                <tr>
+                    <td>#{{ entry.item.order.id }}</td>
+                    <td>{{ entry.item.product.name }}</td>
+                    <td>{{ entry.item.quantity }}</td>
+                    <td>£{{ entry.subtotal }}</td>
+                    <td>£{{ entry.commission }}</td>
+                    <td>£{{ entry.producer_payment }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="order-footer">
+            <a href="{% url 'download_settlement_pdf' week.week_start|date:'Y-m-d' %}" class="nav-link">
+                Download PDF Report
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+
+{% else %}
+    <p>No completed orders to show yet. Settlements are generated from delivered orders.</p>
+{% endif %}
+
+{% endblock %}
