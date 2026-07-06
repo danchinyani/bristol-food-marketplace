@@ -84,6 +84,14 @@
                 {% for product in producer_products %}
                     <a href="{% url 'producer_product_actions' product.id %}" class="producer-product-card-link">
                         <article class="producer-product-card">
+                            <div class="producer-product-media">
+                                {% if product.image %}
+                                    <img src="{{ product.image.url }}" alt="Image of {{ product.name }}">
+                                {% else %}
+                                    <span>No image uploaded</span>
+                                {% endif %}
+                            </div>
+
                             <div class="producer-product-header">
                                 <h3>{{ product.name }}</h3>
                                 <span class="producer-product-price">£{{ product.price }} / {{ product.unit }}</span>

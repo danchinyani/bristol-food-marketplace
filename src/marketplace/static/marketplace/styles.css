@@ -387,6 +387,26 @@ body {
     box-shadow: 0 0 0 2px rgba(158, 165, 170, 0.18);
 }
 
+.producer-product-media {
+    align-items: center;
+    background: #eef5e8;
+    border: 1px solid #d8e7cf;
+    border-radius: 6px;
+    color: #4d6658;
+    display: flex;
+    font-weight: 700;
+    height: 180px;
+    justify-content: center;
+    margin-bottom: 14px;
+    overflow: hidden;
+}
+
+.producer-product-media img {
+    height: 100%;
+    object-fit: cover;
+    width: 100%;
+}
+
 .producer-product-card:last-child {
     margin-bottom: 0;
 }
@@ -1283,8 +1303,19 @@ body {
     background: #ffffff;
     border: 1px solid #c8e6c9;
     border-radius: 8px;
+    color: inherit;
+    display: block;
     padding: 14px 16px 28px;
     position: relative;
+    text-decoration: none;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+}
+
+.notification-card:hover,
+.notification-card:focus {
+    border-color: #2e7d32;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+    transform: translateY(-1px);
 }
 
 .notification-message {

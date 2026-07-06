@@ -5,10 +5,13 @@
 {% if notifications %}
     <div class="notification-list">
     {% for notification in notifications %}
-    <div class="notification-card {% if not notification.is_read %}notification-unread{% endif %} {% if 'Review' in notification.message %}notification-review{% endif %}">
-        <div class="notification-message">{{ notification.message }}</div>
-        <div class="notification-timestamp">{{ notification.created_at|date:"d M Y H:i" }}</div>
-        </div>
+        <a
+            href="{{ notification.target_url }}"
+            class="notification-card {% if not notification.is_read %}notification-unread{% endif %} {% if 'Review' in notification.message %}notification-review{% endif %}"
+        >
+            <div class="notification-message">{{ notification.message }}</div>
+            <div class="notification-timestamp">{{ notification.created_at|date:"d M Y H:i" }}</div>
+        </a>
     {% endfor %}
     </div>
 {% else %}

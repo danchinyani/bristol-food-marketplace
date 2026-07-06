@@ -1,7 +1,10 @@
+import re
+
 from django.db import models
 from phonenumber_field.modelfields import PhoneNumberField
 from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator, MinLengthValidator, MinValueValidator
+from django.urls import reverse
 from decimal import Decimal
 
 class Producer(models.Model):
@@ -264,6 +267,39 @@ class Notification(models.Model):
 
     def __str__(self):
         return f"Notification for {self.user.username} - {self.created_at.date()}"
+
+    @property
+    def target_url(self):
+        message = self.message.lower()
+        order_match = re.search(r'order #(\d+)', self.message)
+
+        if message.startswith('new order') or 'sample order' in message:
+            if order_match:
+                return f"{reverse('producer_orders')}#order-{order_match.group(1)}"
+            return reverse('producer_orders')
+
+        if message.startswith('recurring order') and 'settled' in message:
+            if order_match:
+                return f"{reverse('producer_completed_orders')}#order-{order_match.group(1)}"
+            return reverse('producer_completed_orders')
+
+        if message.startswith('recurring order'):
+            if order_match:
+                return f"{reverse('order_history')}#order-{order_match.group(1)}"
+            return reverse('manage_recurring_orders')
+
+        if message.startswith('your order'):
+            if order_match:
+                return f"{reverse('order_history')}#order-{order_match.group(1)}"
+            return reverse('order_history')
+
+        if message.startswith('review received') or message.startswith('review updated'):
+            return reverse('producer_reviews')
+
+        if message.startswith('low stock alert'):
+            return reverse('add_product')
+
+        return reverse('notifications')
 
 
 class Recipe(models.Model):

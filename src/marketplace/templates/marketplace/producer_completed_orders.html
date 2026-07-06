@@ -17,7 +17,7 @@
         <div class="producer-orders-list">
             {% for entry in one_off_orders %}
                 {% with order=entry.order %}
-                <article class="producer-order-card">
+                <article class="producer-order-card" id="order-{{ order.id }}">
                     <div class="producer-order-top">
                         <div>
                             <h3>Order #{{ order.id }}</h3>
@@ -84,7 +84,7 @@
             {% for entry in recurring_orders %}
                 {% with order=entry.order %}
                 {% with recurring_order=entry.recurring_order %}
-                <article class="producer-order-card">
+                <article class="producer-order-card" id="order-{{ order.id }}">
                     <div class="producer-order-top">
                         <div>
                             <h3>Order #{{ order.id }}</h3>

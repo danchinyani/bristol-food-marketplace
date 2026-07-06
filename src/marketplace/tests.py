@@ -40,7 +40,8 @@ class AddProductViewTests(TestCase):
             price='2.50',
             unit='per kg',
             stock_quantity=10,
-            is_organic=True
+            is_organic=True,
+            image='products/carrots.jpg',
         )
         Product.objects.create(
             producer=self.other_producer,
@@ -58,6 +59,8 @@ class AddProductViewTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, own_product.name)
+        self.assertContains(response, own_product.image.url)
+        self.assertContains(response, 'Image of Carrots')
         self.assertNotContains(response, 'River Farm')
         self.assertEqual(list(response.context['producer_products']), [own_product])
 
@@ -581,8 +584,15 @@ class CommunityBulkOrderTests(TestCase):
         home_response = self.client.get(reverse('home'))
         self.assertContains(home_response, 'Alerts (1)')
 
+        notifications_response = self.client.get(reverse('notifications'))
+        self.assertContains(
+            notifications_response,
+            f'href="{reverse("producer_orders")}#order-{order.id}"'
+        )
+
         producer_orders_response = self.client.get(reverse('producer_orders'))
         self.assertContains(producer_orders_response, f'Order #{order.id}')
+        self.assertContains(producer_orders_response, f'id="order-{order.id}"')
         self.assertContains(producer_orders_response, self.customer.name)
         self.assertContains(producer_orders_response, self.product.name)
 
