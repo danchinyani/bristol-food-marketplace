@@ -389,21 +389,22 @@ body {
 
 .producer-product-media {
     align-items: center;
-    background: #eef5e8;
+    background: #ffffff;
     border: 1px solid #d8e7cf;
     border-radius: 6px;
     color: #4d6658;
     display: flex;
     font-weight: 700;
-    height: 180px;
+    height: 220px;
     justify-content: center;
     margin-bottom: 14px;
     overflow: hidden;
+    padding: 8px;
 }
 
 .producer-product-media img {
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
     width: 100%;
 }
 
