@@ -91,7 +91,7 @@ docker compose exec -e USE_SQLITE_FOR_TESTS=1 web python src/manage.py test mark
 Expected result:
 
 ```text
-Found 15 test(s).
+Found 17 test(s).
 ...............
 OK
 ```
@@ -104,7 +104,7 @@ docs/task2-test-evidence.md
 
 Explain:
 
-- The formal Django test suite passes 15/15.
+- The formal Django test suite passes 17/17.
 - TC-017 has a dedicated community group / bulk checkout path with group name, people supplied, and delivery notes.
 - TC-020 has recipes plus a dedicated farm-story module producers can publish and customers can browse.
 

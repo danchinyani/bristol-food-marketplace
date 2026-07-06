@@ -7,7 +7,7 @@ Deadline: 13 July 2026 before 14:00 UK time.
 - [x] Docker stack runs with web, PostgreSQL, Redis, Celery, and Adminer
 - [x] App opens at `http://localhost:8001`
 - [x] Demo data can be loaded with `docker compose exec web python src/manage.py seed_data`
-- [x] Formal Django tests pass: 15/15
+- [x] Formal Django tests pass: 17/17
 - [x] Test-case evidence matrix created: `docs/task2-test-evidence.md`
 - [x] Resit brief checked: test cases remain identical to original assessment
 - [x] Solo resit position confirmed: group size can be 1 to 5 members

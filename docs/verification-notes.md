@@ -1,11 +1,11 @@
 # Verification Notes
 
-Date checked: 25 June 2026.
+Date checked: 06 July 2026.
 
 ## Automated Checks
 
 - `python src/manage.py check` passed with no issues.
-- `python src/manage.py test marketplace` passed: 13 tests run, 13 passed.
+- `python src/manage.py test marketplace` passed: 17 tests run, 17 passed.
 
 The test run used `USE_SQLITE_FOR_TESTS=1` so local checks can run without Docker/PostgreSQL/Redis. Docker remains configured to use PostgreSQL and Redis for the actual application.
 
@@ -19,6 +19,7 @@ The test run used `USE_SQLITE_FOR_TESTS=1` so local checks can run without Docke
 - Fixed recurring checkout creation from the checkout form.
 - Fixed producer order views so templates receive one-off, recurring, and completed order data correctly.
 - Updated existing tests to match current seasonal/allergen product fields.
+- Added coverage for community group bulk orders, farm stories, producer order alerts, settlement layout data, and product image display.
 
 ## Next Manual Demo Checks
 
@@ -26,4 +27,3 @@ The test run used `USE_SQLITE_FOR_TESTS=1` so local checks can run without Docke
 - Seed sample data with `docker compose exec web python src/manage.py seed_data`.
 - Walk through TC-001 to TC-009, TC-012, TC-015, and TC-022 first.
 - Prepare screenshots or notes for any test case demonstrated verbally.
-

@@ -2,7 +2,7 @@
 
 Project path: `C:\Users\dchin\Documents\bristol-food-marketplace-resit`  
 App URL: `http://localhost:8001`  
-Test date: 25 June 2026  
+Test date: 06 July 2026  
 Tester: Danai Chinyani
 
 ## Formal Automated Test Result
@@ -16,10 +16,10 @@ docker compose exec -e USE_SQLITE_FOR_TESTS=1 web python src/manage.py test mark
 Result:
 
 ```text
-Found 15 test(s).
+Found 17 test(s).
 System check identified no issues (0 silenced).
-...............
-Ran 15 tests in 6.873s
+.................
+Ran 17 tests in 31.049s
 OK
 ```
 
@@ -47,7 +47,7 @@ Customer: cust1 / customer1
 | TC-009 | Critical | Producer views incoming orders | Pass - automated | Automated tests verify producer order pages show generated customer orders and recurring order details. Demo as `prod1` -> orders. |
 | TC-010 | High | Producer updates order status | Pass - manual | Producer order workflow includes order status handling and completed order views. Demo status update from producer order page. |
 | TC-011 | High | Producer updates inventory | Pass - automated | Automated tests cover producer product editing and stock/metadata updates. Demo by editing stock for one product. |
-| TC-012 | Critical | Producer receives weekly payment settlements | Pass - manual | Payment settlements view calculates producer weekly totals and 5% network commission. Demo as `prod1` -> settlements. |
+| TC-012 | Critical | Producer receives weekly payment settlements | Pass - automated | Payment settlements view calculates producer weekly totals and 5% network commission. Automated tests verify the summary cards, weekly table, product rows, and PDF link. Demo as `prod1` -> settlements. |
 | TC-013 | Medium | Customer views food miles | Pass - manual | Food miles utility and marketplace display are implemented using producer/customer postcodes. Demo product list as `cust1`; requires postcode lookup response. |
 | TC-014 | Medium | Filter by organic certification | Pass - automated | Product model, forms, marketplace filters, templates, and automated tests cover `is_organic`. Demo organic filter in marketplace. |
 | TC-015 | Critical | Allergen warnings displayed | Pass - automated | Product allergen JSON field, allergen labels, product forms, filters, and templates are implemented. Demo products such as Eggs, Milk, Cheese, Yoghurt, Bread. |
@@ -56,15 +56,15 @@ Customer: cust1 / customer1
 | TC-018 | Medium | Restaurant regular weekly orders | Pass - automated | Recurring weekly order model, checkout option, upcoming item edits, Celery scheduled generation, and automated tests are implemented. Demo as `cust1` -> recurring orders. |
 | TC-019 | Medium | Surplus produce with discounts | Pass - automated | Product surplus flag and discount percentage are implemented, including validation and discounted price calculation. Demo discounted surplus product card. |
 | TC-020 | Low | Recipes and farm stories | Pass - automated | Recipes remain implemented, and producers now publish dedicated farm stories with growing practices. Automated tests verify producer story publishing plus customer list/detail/profile visibility. |
-| TC-021 | High | Order history and reorder | Pass - manual | Order history and reorder route are implemented. Demo as `cust1` -> order history -> reorder. |
+| TC-021 | High | Order history and reorder | Pass - manual | Order history and reorder route are implemented with a cleaned table layout and review controls. Demo as `cust1` -> order history -> reorder. |
 | TC-022 | Critical | Secure authentication and authorisation | Pass - manual | Uses Django authentication, password validators including special-character validation, login rate limiting, hashed passwords, sessions, and login-required/protected views. Demo failed login handling and role-restricted pages. |
 | TC-023 | Medium | Low stock notification | Pass - manual | Low-stock threshold field and notification creation after checkout are implemented. Demo by ordering stock down to threshold or inspect seeded producer notifications. |
-| TC-024 | Medium | Rate and review products | Pass - manual | ProductReview model and review submission flow are implemented for ordered items. Demo from customer completed order item review. |
+| TC-024 | Medium | Rate and review products | Pass - manual | ProductReview model and review submission flow are implemented for ordered items, with producer review notifications. Demo from customer completed order item review. |
 | TC-025 | High | Admin monitors commission | Pass - manual | Admin dashboard/reports calculate total sales and network commission; PDF reporting is implemented. Demo as `admin1` -> admin reports. |
 
 ## Honest Coverage Summary
 
-Automated tests: 15/15 passing.
+Automated tests: 17/17 passing.
 
 Critical test cases: all critical cases have implementation evidence. TC-022 should still be demonstrated manually because security acceptance criteria are broader than the automated tests.
 
