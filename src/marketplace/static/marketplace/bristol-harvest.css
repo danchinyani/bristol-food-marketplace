@@ -911,6 +911,203 @@ a.admin-quick-link {
     border-top: 1px solid var(--harvest-border);
 }
 
+.settlements-page {
+    display: grid;
+    gap: 18px;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 6px 0 36px;
+}
+
+.settlements-heading {
+    background: var(--harvest-surface-strong);
+    border: 1px solid var(--harvest-border);
+    border-radius: 8px;
+    box-shadow: var(--harvest-shadow-soft);
+    padding: 20px 22px;
+}
+
+.settlements-heading .auth-title,
+.settlements-heading .auth-subtitle {
+    margin-left: 0;
+    margin-right: 0;
+    text-align: left;
+}
+
+.settlements-heading .auth-title {
+    margin-bottom: 4px;
+}
+
+.settlements-heading .auth-subtitle {
+    margin-bottom: 0;
+}
+
+.settlements-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(180px, 1fr));
+    gap: 14px;
+}
+
+.settlements-summary-card {
+    background: var(--harvest-surface-strong);
+    border: 1px solid var(--harvest-border);
+    border-radius: 8px;
+    box-shadow: var(--harvest-shadow-soft);
+    padding: 18px;
+}
+
+.settlements-summary-card span,
+.settlement-week-summary span,
+.settlement-eyebrow {
+    color: var(--harvest-muted);
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.settlements-summary-card strong {
+    color: var(--harvest-green-dark);
+    display: block;
+    font-size: 1.7rem;
+    line-height: 1.2;
+    margin-top: 6px;
+}
+
+.settlements-summary-card small {
+    color: var(--harvest-muted);
+    display: block;
+    font-weight: 700;
+    margin-top: 6px;
+}
+
+.settlements-summary-card--primary {
+    background: #f4f8ed;
+    border-color: #c8dabd;
+}
+
+.settlements-list {
+    display: grid;
+    gap: 18px;
+}
+
+.settlement-card {
+    background: var(--harvest-surface-strong);
+    border: 1px solid rgba(35, 96, 68, 0.2);
+    border-radius: 8px;
+    box-shadow: var(--harvest-shadow-soft);
+    overflow: hidden;
+}
+
+.settlement-card-header {
+    align-items: center;
+    background: #fffaf0;
+    border-bottom: 1px solid var(--harvest-border);
+    display: flex;
+    gap: 16px;
+    justify-content: space-between;
+    padding: 16px 18px;
+}
+
+.settlement-card-header h3 {
+    color: var(--harvest-green-dark);
+    font-size: 1.05rem;
+    margin: 3px 0 0;
+}
+
+.settlement-download-link {
+    align-items: center;
+    background: var(--harvest-green);
+    border: 1px solid var(--harvest-green);
+    border-radius: 8px;
+    color: #fffaf0;
+    display: inline-flex;
+    font-weight: 800;
+    justify-content: center;
+    min-height: 40px;
+    padding: 9px 14px;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.settlement-download-link:hover,
+.settlement-download-link:focus {
+    background: var(--harvest-green-dark);
+    border-color: var(--harvest-green-dark);
+    color: #ffffff;
+    text-decoration: none;
+}
+
+.settlement-week-summary {
+    background: var(--harvest-border);
+    display: grid;
+    gap: 1px;
+    grid-template-columns: repeat(3, minmax(160px, 1fr));
+}
+
+.settlement-week-summary div {
+    background: var(--harvest-surface-strong);
+    min-height: 70px;
+    padding: 14px 18px;
+}
+
+.settlement-week-summary strong {
+    color: var(--harvest-text);
+    display: block;
+    font-size: 1.15rem;
+    margin-top: 4px;
+}
+
+.settlement-table-wrap {
+    overflow-x: auto;
+}
+
+.settlement-table {
+    border-collapse: collapse;
+    min-width: 760px;
+    table-layout: fixed;
+    width: 100%;
+}
+
+.settlement-table th,
+.settlement-table td {
+    border-bottom: 1px solid var(--harvest-border);
+    padding: 13px 16px;
+    text-align: left;
+    vertical-align: top;
+}
+
+.settlement-table th {
+    background: var(--harvest-green-dark);
+    color: #fffaf0;
+    font-size: 0.78rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.settlement-table tbody tr:nth-child(even) {
+    background: #fffaf0;
+}
+
+.settlement-table tbody tr:hover {
+    background: #f8fbf4;
+}
+
+.settlement-table td strong {
+    color: var(--harvest-green-dark);
+}
+
+.settlement-number {
+    text-align: right;
+    white-space: nowrap;
+}
+
+.settlement-payment-cell {
+    color: var(--harvest-green-dark);
+    font-weight: 800;
+}
+
 .product-image-container img,
 .recipe-image-strip img {
     border: 1px solid var(--harvest-border);
@@ -989,7 +1186,8 @@ a.admin-quick-link {
     .producer-order-top,
     .order-history-heading,
     .order-history-card-header,
-    .order-history-actions {
+    .order-history-actions,
+    .settlement-card-header {
         flex-direction: column;
         align-items: flex-start;
     }
@@ -997,11 +1195,14 @@ a.admin-quick-link {
     .order-history-primary-link,
     .order-history-secondary-btn,
     .order-history-receipt-link,
-    .order-history-actions form {
+    .order-history-actions form,
+    .settlement-download-link {
         width: 100%;
     }
 
-    .order-history-summary-grid {
+    .order-history-summary-grid,
+    .settlements-summary-grid,
+    .settlement-week-summary {
         grid-template-columns: 1fr;
     }
 

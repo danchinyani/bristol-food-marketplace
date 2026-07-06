@@ -1,64 +1,98 @@
 {% extends 'marketplace/base.html' %}
+
+{% block title %}Payment Settlements - Bristol Food Network{% endblock %}
+
 {% block content %}
-<h2>Payment Settlements</h2>
+<div class="settlements-page">
+    <div class="settlements-heading">
+        <div>
+            <h2 class="auth-title">Payment Settlements</h2>
+            <p class="auth-subtitle">Track delivered-order earnings, network commission, and weekly payout reports.</p>
+        </div>
+    </div>
 
-<!-- YEAR TO DATE SUMMARY -->
-<div class="order-card">
-    <div class="order-header">
-        <span><strong>Year to Date Summary</strong></span>
-    </div>
-    <div class="order-footer">
-        <p>Gross Total: <strong>£{{ ytd_gross }}</strong></p>
-        <p>Network Commission (5%): <strong>£{{ ytd_commission }}</strong></p>
-        <p>Your Total Earnings (95%): <strong>£{{ ytd_producer_payment }}</strong></p>
-    </div>
+    <section class="settlements-summary-grid" aria-label="Year to date settlement summary">
+        <article class="settlements-summary-card">
+            <span>Gross sales</span>
+            <strong>&pound;{{ ytd_gross }}</strong>
+        </article>
+        <article class="settlements-summary-card">
+            <span>Network commission</span>
+            <strong>&pound;{{ ytd_commission }}</strong>
+            <small>5% platform fee</small>
+        </article>
+        <article class="settlements-summary-card settlements-summary-card--primary">
+            <span>Your earnings</span>
+            <strong>&pound;{{ ytd_producer_payment }}</strong>
+            <small>95% producer payout</small>
+        </article>
+    </section>
+
+    {% if weeks %}
+        <div class="settlements-list">
+            {% for week in weeks %}
+                <article class="settlement-card">
+                    <header class="settlement-card-header">
+                        <div>
+                            <p class="settlement-eyebrow">Weekly settlement</p>
+                            <h3>{{ week.week_start|date:"d M Y" }} - {{ week.week_end|date:"d M Y" }}</h3>
+                        </div>
+                        <a href="{% url 'download_settlement_pdf' week.week_start|date:'Y-m-d' %}" class="settlement-download-link">
+                            Download PDF
+                        </a>
+                    </header>
+
+                    <div class="settlement-week-summary">
+                        <div>
+                            <span>Gross</span>
+                            <strong>&pound;{{ week.gross_total }}</strong>
+                        </div>
+                        <div>
+                            <span>Commission</span>
+                            <strong>&pound;{{ week.commission }}</strong>
+                        </div>
+                        <div>
+                            <span>Your payment</span>
+                            <strong>&pound;{{ week.producer_payment }}</strong>
+                        </div>
+                    </div>
+
+                    <div class="settlement-table-wrap">
+                        <table class="settlement-table">
+                            <thead>
+                                <tr>
+                                    <th>Order</th>
+                                    <th>Product</th>
+                                    <th class="settlement-number">Qty</th>
+                                    <th class="settlement-number">Subtotal</th>
+                                    <th class="settlement-number">Commission</th>
+                                    <th class="settlement-number">You receive</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for entry in week.items %}
+                                    <tr>
+                                        <td>#{{ entry.item.order.id }}</td>
+                                        <td>
+                                            <strong>{{ entry.item.product.name }}</strong>
+                                        </td>
+                                        <td class="settlement-number">{{ entry.item.quantity }}</td>
+                                        <td class="settlement-number">&pound;{{ entry.subtotal }}</td>
+                                        <td class="settlement-number">&pound;{{ entry.commission }}</td>
+                                        <td class="settlement-number settlement-payment-cell">&pound;{{ entry.producer_payment }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="producer-empty-state">
+            <p>No completed orders to show yet.</p>
+            <p>Settlements are generated from delivered orders.</p>
+        </div>
+    {% endif %}
 </div>
-
-{% if weeks %}
-    {% for week in weeks %}
-    <div class="order-card">
-        <div class="order-header">
-            <span><strong>Week: {{ week.week_start|date:"d M Y" }} - {{ week.week_end|date:"d M Y" }}</strong></span>
-            <span>Gross: £{{ week.gross_total }}</span>
-            <span>Commission: £{{ week.commission }}</span>
-            <span>Your Payment: <strong>£{{ week.producer_payment }}</strong></span>
-        </div>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>Order #</th>
-                    <th>Product</th>
-                    <th>Qty</th>
-                    <th>Subtotal</th>
-                    <th>Commission (5%)</th>
-                    <th>You Receive (95%)</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for entry in week.items %}
-                <tr>
-                    <td>#{{ entry.item.order.id }}</td>
-                    <td>{{ entry.item.product.name }}</td>
-                    <td>{{ entry.item.quantity }}</td>
-                    <td>£{{ entry.subtotal }}</td>
-                    <td>£{{ entry.commission }}</td>
-                    <td>£{{ entry.producer_payment }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-
-        <div class="order-footer">
-            <a href="{% url 'download_settlement_pdf' week.week_start|date:'Y-m-d' %}" class="nav-link">
-                Download PDF Report
-            </a>
-        </div>
-    </div>
-    {% endfor %}
-
-{% else %}
-    <p>No completed orders to show yet. Settlements are generated from delivered orders.</p>
-{% endif %}
-
 {% endblock %}

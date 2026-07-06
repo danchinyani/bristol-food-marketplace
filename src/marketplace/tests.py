@@ -5,7 +5,7 @@ from django.urls import reverse
 from datetime import date, timedelta
 
 from .forms import CheckoutForm, build_delivery_day_choices
-from .models import Customer, Producer, Product, BasketItem, CustomerOrder, Notification, RecurringOrder, RecurringOrderUpcomingItem, FarmStory
+from .models import Customer, Producer, Product, BasketItem, CustomerOrder, OrderItem, Notification, RecurringOrder, RecurringOrderUpcomingItem, FarmStory
 from .tasks import process_due_recurring_orders
 
 
@@ -646,3 +646,61 @@ class FarmStoryTests(TestCase):
         producer_profile_response = self.client.get(reverse('producer_bio_public', args=[self.producer.id]))
         self.assertContains(producer_profile_response, 'Farm Stories')
         self.assertContains(producer_profile_response, 'Harvest Week on the Orchard')
+
+
+class PaymentSettlementViewTests(TestCase):
+    def setUp(self):
+        self.producer_user = User.objects.create_user(username='settlement_producer', password='testpass123')
+        self.customer_user = User.objects.create_user(username='settlement_customer', password='testpass123')
+        self.producer = Producer.objects.create(
+            user=self.producer_user,
+            business_name='Settlement Farm',
+            contact_name='Pay Grower',
+            email='pay@example.com',
+            business_address='8 Ledger Lane',
+            postcode='BS11AA',
+        )
+        self.customer = Customer.objects.create(
+            user=self.customer_user,
+            name='Payout Buyer',
+            email='buyer@example.com',
+            address='3 Customer Road',
+            postcode='BS22BB',
+        )
+        self.product = Product.objects.create(
+            producer=self.producer,
+            name='Settlement Apples',
+            category='FRUIT',
+            description='Fresh apples',
+            price='10.00',
+            unit='per box',
+            stock_quantity=20,
+            is_organic=True,
+        )
+
+    def test_settlement_page_shows_summary_cards_and_weekly_table(self):
+        order = CustomerOrder.objects.create(
+            customer=self.customer,
+            delivery_address=self.customer.address,
+            preferred_delivery_date=date.today(),
+            card_holder_name='Payout Buyer',
+            card_number_last4='4242',
+            total_price='20.00',
+            status='DELIVERED',
+        )
+        OrderItem.objects.create(
+            order=order,
+            product=self.product,
+            quantity=2,
+            unit_price='10.00',
+        )
+
+        self.client.login(username='settlement_producer', password='testpass123')
+        response = self.client.get(reverse('payment_settlements'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Gross sales')
+        self.assertContains(response, 'Your earnings')
+        self.assertContains(response, 'Weekly settlement')
+        self.assertContains(response, 'Settlement Apples')
+        self.assertContains(response, 'Download PDF')
