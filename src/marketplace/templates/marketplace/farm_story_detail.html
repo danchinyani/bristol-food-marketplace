@@ -1,0 +1,23 @@
+{% extends 'marketplace/base.html' %}
+
+{% block title %}{{ story.title }} - Bristol Food Network{% endblock %}
+
+{% block content %}
+<article class="customer-recipe-card">
+    <div class="customer-recipe-card-header">
+        <span class="customer-recipe-title">{{ story.title }}</span>
+        <span class="customer-recipe-meta">By: {{ story.producer.business_name }} &middot; {{ story.created_at|date:"d M Y" }}</span>
+    </div>
+    <div class="customer-recipe-card-body">
+        <p>{{ story.story|linebreaksbr }}</p>
+
+        {% if story.growing_practices %}
+            <h3>Growing Practices</h3>
+            <p>{{ story.growing_practices|linebreaksbr }}</p>
+        {% endif %}
+
+        <a href="{% url 'farm_story_list' %}" class="nav-link">Back to Farm Stories</a>
+        <a href="{% url 'producer_bio_public' story.producer.id %}" class="nav-link">View Producer</a>
+    </div>
+</article>
+{% endblock %}

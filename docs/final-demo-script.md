@@ -91,8 +91,8 @@ docker compose exec -e USE_SQLITE_FOR_TESTS=1 web python src/manage.py test mark
 Expected result:
 
 ```text
-Found 13 test(s).
-.............
+Found 15 test(s).
+...............
 OK
 ```
 
@@ -104,9 +104,9 @@ docs/task2-test-evidence.md
 
 Explain:
 
-- The formal Django test suite passes 13/13.
-- TC-017 is partial because bulk quantities are supported through normal customer checkout, but there is no separate community-group account type.
-- TC-020 is partial/pass because recipes and producer bios are implemented, but there is no separate farm-story module.
+- The formal Django test suite passes 15/15.
+- TC-017 has a dedicated community group / bulk checkout path with group name, people supplied, and delivery notes.
+- TC-020 has recipes plus a dedicated farm-story module producers can publish and customers can browse.
 
 ## 6. Submission Files To Mention
 

@@ -153,6 +153,10 @@ class CustomerOrder(models.Model):
     card_number_last4 = models.CharField(max_length=4)
     # TOTAL VALUE OF THE ORDER CALCULATED AT CHECKOUT
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
+    is_bulk_order = models.BooleanField(default=False)
+    group_name = models.CharField(max_length=150, blank=True)
+    group_member_count = models.PositiveIntegerField(null=True, blank=True)
+    delivery_instructions = models.TextField(blank=True)
 
     # ORDER STATUS CHOICES
     STATUS_CHOICES = [
@@ -293,6 +297,21 @@ class RecipeImage(models.Model):
 
     def __str__(self):
         return f"Image for recipe #{self.recipe_id}"
+
+
+class FarmStory(models.Model):
+    producer = models.ForeignKey(Producer, on_delete=models.CASCADE, related_name='farm_stories')
+    title = models.CharField(max_length=200)
+    story = models.TextField()
+    growing_practices = models.TextField(blank=True)
+    published = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.title} by {self.producer.business_name}"
 
 # PRODUCT REVIEW MODEL - ALLOWS CUSTOMERS TO REVIEW ONLY PRODUCTS THEY HAVE PURCHASED
 class ProductReview(models.Model):

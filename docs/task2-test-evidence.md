@@ -16,10 +16,10 @@ docker compose exec -e USE_SQLITE_FOR_TESTS=1 web python src/manage.py test mark
 Result:
 
 ```text
-Found 13 test(s).
+Found 15 test(s).
 System check identified no issues (0 silenced).
-.............
-Ran 13 tests in 14.176s
+...............
+Ran 15 tests in 6.873s
 OK
 ```
 
@@ -52,10 +52,10 @@ Customer: cust1 / customer1
 | TC-014 | Medium | Filter by organic certification | Pass - automated | Product model, forms, marketplace filters, templates, and automated tests cover `is_organic`. Demo organic filter in marketplace. |
 | TC-015 | Critical | Allergen warnings displayed | Pass - automated | Product allergen JSON field, allergen labels, product forms, filters, and templates are implemented. Demo products such as Eggs, Milk, Cheese, Yoghurt, Bread. |
 | TC-016 | High | Seasonal availability | Pass - automated | Product seasonal range fields and marketplace season filtering are implemented. Automated tests cover seasonal product values. |
-| TC-017 | Medium | Community group bulk orders | Partial | The app supports larger quantities in the basket/checkout flow, but it does not have a separate "community group" account type or dedicated bulk-order workflow. Demonstrate using normal customer basket quantities and explain as partial. |
+| TC-017 | Medium | Community group bulk orders | Pass - automated | Checkout includes a dedicated community group / bulk order option with group name, number of people supplied, and bulk delivery notes. Automated tests verify a tagged bulk order is created and shown on confirmation. |
 | TC-018 | Medium | Restaurant regular weekly orders | Pass - automated | Recurring weekly order model, checkout option, upcoming item edits, Celery scheduled generation, and automated tests are implemented. Demo as `cust1` -> recurring orders. |
 | TC-019 | Medium | Surplus produce with discounts | Pass - automated | Product surplus flag and discount percentage are implemented, including validation and discounted price calculation. Demo discounted surplus product card. |
-| TC-020 | Low | Recipes and farm stories | Partial / Pass | Recipes and producer public bios are implemented. Exact "farm stories" are represented through producer bio/profile rather than a separate story module. |
+| TC-020 | Low | Recipes and farm stories | Pass - automated | Recipes remain implemented, and producers now publish dedicated farm stories with growing practices. Automated tests verify producer story publishing plus customer list/detail/profile visibility. |
 | TC-021 | High | Order history and reorder | Pass - manual | Order history and reorder route are implemented. Demo as `cust1` -> order history -> reorder. |
 | TC-022 | Critical | Secure authentication and authorisation | Pass - manual | Uses Django authentication, password validators including special-character validation, login rate limiting, hashed passwords, sessions, and login-required/protected views. Demo failed login handling and role-restricted pages. |
 | TC-023 | Medium | Low stock notification | Pass - manual | Low-stock threshold field and notification creation after checkout are implemented. Demo by ordering stock down to threshold or inspect seeded producer notifications. |
@@ -64,14 +64,11 @@ Customer: cust1 / customer1
 
 ## Honest Coverage Summary
 
-Automated tests: 13/13 passing.
+Automated tests: 15/15 passing.
 
 Critical test cases: all critical cases have implementation evidence. TC-022 should still be demonstrated manually because security acceptance criteria are broader than the automated tests.
 
-Partial cases to mention carefully in the presentation:
-
-- TC-017: normal customer checkout supports bulk quantities, but there is no separate community group account type.
-- TC-020: recipes and producer profiles exist; "farm stories" are represented by producer bios rather than a dedicated story feature.
+Previously partial cases TC-017 and TC-020 now have dedicated implementation and automated coverage.
 
 ## Suggested Demo Order
 
@@ -79,4 +76,4 @@ Partial cases to mention carefully in the presentation:
 2. Log in as `cust1 / customer1`; browse/search/filter products, add items to basket, checkout, view order history, reorder, review product, and view recurring orders.
 3. Log in as `prod1 / producer1`; add/edit products, show allergens/seasonal/organic/surplus fields, view incoming/completed orders, settlements, recipes, producer bio, and notifications.
 4. Log in as `admin1 / admin123`; show dashboard/reports and commission totals.
-5. Explain TC-017 and TC-020 as partial/represented features.
+5. Show community group order details and farm stories as dedicated TC-017 and TC-020 evidence.

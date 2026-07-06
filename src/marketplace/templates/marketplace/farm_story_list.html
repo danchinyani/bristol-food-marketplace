@@ -1,0 +1,28 @@
+{% extends 'marketplace/base.html' %}
+
+{% block title %}Farm Stories - Bristol Food Network{% endblock %}
+
+{% block content %}
+<h2>Farm Stories</h2>
+
+{% if stories %}
+    {% for story in stories %}
+        <div class="customer-recipe-card">
+            <div class="customer-recipe-card-header">
+                <span class="customer-recipe-title">{{ story.title }}</span>
+                <span class="customer-recipe-meta">By: {{ story.producer.business_name }} &middot; {{ story.created_at|date:"d M Y" }}</span>
+            </div>
+            <div class="customer-recipe-card-body">
+                <p>{{ story.story|truncatewords:40 }}</p>
+                {% if story.growing_practices %}
+                    <p><strong>Growing practices:</strong> {{ story.growing_practices|truncatewords:20 }}</p>
+                {% endif %}
+                <a href="{% url 'farm_story_detail' story.id %}" class="nav-link">Read Full Story</a>
+                <a href="{% url 'producer_bio_public' story.producer.id %}" class="nav-link">View Producer</a>
+            </div>
+        </div>
+    {% endfor %}
+{% else %}
+    <p>No farm stories have been published yet.</p>
+{% endif %}
+{% endblock %}

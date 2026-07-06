@@ -16,14 +16,12 @@
     <p class="producer-product-meta">
         <strong>Rating:</strong>
         {% if producer_avg_rating %}
-            ⭐ {{ producer_avg_rating|floatformat:1 }} / 5
+            {{ producer_avg_rating|floatformat:1 }} / 5
             ({{ producer_review_count }} review{{ producer_review_count|pluralize }})
         {% else %}
             No reviews yet
         {% endif %}
     </p>
-
-    <p><strong>Address:</strong> {{ producer.business_address }}, {{ producer.postcode }}</p>
 
     <div class="producer-panel producer-bio-text-panel">
         {% if producer.bio %}
@@ -33,8 +31,28 @@
         {% endif %}
     </div>
 
+    <div class="producer-panel producer-bio-text-panel">
+        <h3>Farm Stories</h3>
+        {% if farm_stories %}
+            {% for story in farm_stories %}
+                <article class="customer-recipe-card">
+                    <div class="customer-recipe-card-header">
+                        <span class="customer-recipe-title">{{ story.title }}</span>
+                        <span class="customer-recipe-meta">{{ story.created_at|date:"d M Y" }}</span>
+                    </div>
+                    <div class="customer-recipe-card-body">
+                        <p>{{ story.story|truncatewords:35 }}</p>
+                        <a href="{% url 'farm_story_detail' story.id %}" class="nav-link">Read Farm Story</a>
+                    </div>
+                </article>
+            {% endfor %}
+        {% else %}
+            <p class="producer-bio-empty">This producer has not published farm stories yet.</p>
+        {% endif %}
+    </div>
+
     <p class="auth-footer-text producer-footer-text">
-        <a href="{% url 'customer_market' %}" class="producer-home-link">← Back to Market</a>
+        <a href="{% url 'customer_market' %}" class="producer-home-link">Back to Market</a>
     </p>
 </div>
 {% endblock %}

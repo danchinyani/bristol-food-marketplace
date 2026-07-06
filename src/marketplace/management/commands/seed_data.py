@@ -7,7 +7,7 @@ from marketplace.models import (
     Producer, Customer, Product, Recipe,
     CustomerOrder, OrderItem, BasketItem,
     RecurringOrder, RecurringOrderItem, RecurringOrderUpcomingItem,
-    Notification, ProductReview
+    Notification, ProductReview, FarmStory
 )
 
 
@@ -252,6 +252,34 @@ class Command(BaseCommand):
                     else:
                         recipe.linked_products.set(list(producer2.products.all()[:2]))
                 self.stdout.write(f'Recipe already exists: {r["title"]}')
+
+        stories_data = [
+            {
+                'producer': producer,
+                'title': 'How We Grow Through the Bristol Seasons',
+                'story': 'Our farm plans each crop around Bristol soil conditions, short delivery routes, and weekly harvest demand from local customers.',
+                'growing_practices': 'Organic compost, hand weeding, crop rotation, and harvest-to-order packing for community group boxes.',
+            },
+            {
+                'producer': producer2,
+                'title': 'Morning Milking at Hillside Dairy',
+                'story': 'Each delivery starts with the herd check, morning milking, and careful chilling before products are packed for Bristol customers.',
+                'growing_practices': 'Pasture-led dairy, short supply chains, batch traceability, and surplus discounting when fresh stock needs moving quickly.',
+            },
+        ]
+
+        for story_data in stories_data:
+            if not FarmStory.objects.filter(title=story_data['title'], producer=story_data['producer']).exists():
+                FarmStory.objects.create(
+                    producer=story_data['producer'],
+                    title=story_data['title'],
+                    story=story_data['story'],
+                    growing_practices=story_data['growing_practices'],
+                    published=True,
+                )
+                self.stdout.write(f'Created farm story: {story_data["title"]}')
+            else:
+                self.stdout.write(f'Farm story already exists: {story_data["title"]}')
 
         # CREATE PAST ORDERS FOR CUSTOMER
         if created_products and not CustomerOrder.objects.filter(customer=customer).exists():

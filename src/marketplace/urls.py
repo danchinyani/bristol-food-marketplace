@@ -122,4 +122,9 @@ urlpatterns = [
     path('producer/recipes/', views.add_recipe, name='add_recipe'),
     path('producer/recipes/<int:recipe_id>/edit/', views.edit_recipe, name='edit_recipe'),
     path('producer/recipes/<int:recipe_id>/delete/', views.delete_recipe, name='delete_recipe'),
+    path('farm-stories/', views.farm_story_list, name='farm_story_list'),
+    path('farm-stories/<int:story_id>/', views.farm_story_detail, name='farm_story_detail'),
+    path('producer/farm-stories/', views.add_farm_story, name='add_farm_story'),
+    path('producer/farm-stories/<int:story_id>/edit/', views.edit_farm_story, name='edit_farm_story'),
+    path('producer/farm-stories/<int:story_id>/delete/', views.delete_farm_story, name='delete_farm_story'),
 ]

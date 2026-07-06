@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
-from .models import Producer, Customer, Product, Recipe, RecurringOrder
+from .models import Producer, Customer, Product, Recipe, RecurringOrder, FarmStory
 import datetime
 
 
@@ -230,6 +230,32 @@ class CheckoutForm(forms.Form):
         label='Recurring Delivery Day',
     )
 
+    is_bulk_order = forms.BooleanField(
+        required=False,
+        widget=forms.CheckboxInput(attrs={'class': 'basket-recurring-checkbox'}),
+        label='Community group / bulk order',
+    )
+
+    group_name = forms.CharField(
+        max_length=150,
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'auth-field', 'placeholder': 'e.g. Easton Community Kitchen'}),
+        label='Group or organisation name',
+    )
+
+    group_member_count = forms.IntegerField(
+        min_value=2,
+        required=False,
+        widget=forms.NumberInput(attrs={'class': 'auth-field', 'min': 2}),
+        label='Number of people supplied',
+    )
+
+    delivery_instructions = forms.CharField(
+        required=False,
+        widget=forms.Textarea(attrs={'class': 'auth-field', 'rows': 3, 'placeholder': 'Bulk packing, access, or drop-off notes'}),
+        label='Bulk delivery instructions',
+    )
+
     # CARD HOLDER NAME AS IT APPEARS ON THE CARD
     card_holder_name = forms.CharField(
         max_length=100,
@@ -299,6 +325,12 @@ class CheckoutForm(forms.Form):
 
     def clean(self):
         cleaned_data = super().clean()
+        if cleaned_data.get('is_bulk_order'):
+            if not cleaned_data.get('group_name'):
+                self.add_error('group_name', 'Please enter the group or organisation name.')
+            if not cleaned_data.get('group_member_count'):
+                self.add_error('group_member_count', 'Please enter how many people this order supplies.')
+
         if not cleaned_data.get('make_recurring'):
             return cleaned_data
 
@@ -362,4 +394,20 @@ class RecipeForm(forms.ModelForm):
             'description': forms.Textarea(attrs={'rows': 3}),
             'ingredients': forms.Textarea(attrs={'rows': 5}),
             'instructions': forms.Textarea(attrs={'rows': 6}),
+        }
+
+
+class FarmStoryForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            if not isinstance(field.widget, forms.CheckboxInput):
+                field.widget.attrs.update({'class': 'auth-field'})
+
+    class Meta:
+        model = FarmStory
+        fields = ['title', 'story', 'growing_practices', 'published']
+        widgets = {
+            'story': forms.Textarea(attrs={'rows': 6}),
+            'growing_practices': forms.Textarea(attrs={'rows': 4}),
         }

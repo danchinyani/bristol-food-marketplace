@@ -1,0 +1,16 @@
+{% extends 'marketplace/base.html' %}
+
+{% block title %}Edit Farm Story - Bristol Food Network{% endblock %}
+
+{% block content %}
+<h2>Edit Farm Story</h2>
+
+<div class="order-card">
+    <form method="post" class="auth-form">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="auth-submit-btn">Update Farm Story</button>
+        <a href="{% url 'add_farm_story' %}" class="nav-link">Cancel</a>
+    </form>
+</div>
+{% endblock %}

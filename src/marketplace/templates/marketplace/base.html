@@ -65,6 +65,7 @@
                     <li><a href="{% url 'producer_reviews' %}" class="nav-link">Customer Reviews</a></li>
                     <li><a href="{% url 'payment_settlements' %}" class="nav-link">Settlements</a></li>
                     <li><a href="{% url 'add_recipe' %}" class="nav-link">My Recipes</a></li>
+                    <li><a href="{% url 'add_farm_story' %}" class="nav-link">Farm Stories</a></li>
                 {% endif %}
                 {% if user.is_authenticated and is_customer %}
                     <li><a href="{% url 'customer_market' %}" class="nav-link">Market</a></li>
@@ -72,6 +73,7 @@
                     <li><a href="{% url 'order_history' %}" class="nav-link">My Orders</a></li>
                     <li><a href="{% url 'manage_recurring_orders' %}" class="nav-link">Recurring Orders</a></li>
                     <li><a href="{% url 'recipe_list' %}" class="nav-link">Recipes</a></li>
+                    <li><a href="{% url 'farm_story_list' %}" class="nav-link">Farm Stories</a></li>
                 {% endif %}
             </ul>
         </aside>

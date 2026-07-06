@@ -1,0 +1,72 @@
+{% extends 'marketplace/base.html' %}
+
+{% block title %}Farm Stories - Bristol Food Network{% endblock %}
+
+{% block content %}
+<h2>Farm Stories</h2>
+
+<div class="order-card">
+    <h3>Add New Farm Story</h3>
+    <form method="post" class="auth-form">
+        {% csrf_token %}
+
+        <div class="auth-field-group">
+            <label class="auth-label">{{ form.title.label }}</label>
+            {{ form.title }}
+            {% for error in form.title.errors %}<p class="field-error-msg">{{ error }}</p>{% endfor %}
+        </div>
+
+        <div class="auth-field-group">
+            <label class="auth-label">{{ form.story.label }}</label>
+            {{ form.story }}
+            {% for error in form.story.errors %}<p class="field-error-msg">{{ error }}</p>{% endfor %}
+        </div>
+
+        <div class="auth-field-group">
+            <label class="auth-label">{{ form.growing_practices.label }}</label>
+            {{ form.growing_practices }}
+            {% for error in form.growing_practices.errors %}<p class="field-error-msg">{{ error }}</p>{% endfor %}
+        </div>
+
+        <label class="basket-recurring-label">
+            {{ form.published }}
+            <span>{{ form.published.label }}</span>
+        </label>
+
+        <button type="submit" class="auth-submit-btn">Save Farm Story</button>
+    </form>
+</div>
+
+{% if producer_stories %}
+    <h3>Your Farm Stories</h3>
+    {% for story in producer_stories %}
+        <div class="producer-recipe-card">
+            <div class="producer-recipe-header">
+                <div class="producer-recipe-header-text">
+                    <h3>{{ story.title }}</h3>
+                    <span class="producer-recipe-date">{{ story.created_at|date:"d M Y" }}</span>
+                    <span class="producer-recipe-season">{% if story.published %}Published{% else %}Draft{% endif %}</span>
+                </div>
+            </div>
+
+            <div class="producer-recipe-body">
+                <p>{{ story.story }}</p>
+                {% if story.growing_practices %}
+                    <h4>Growing Practices</h4>
+                    <p>{{ story.growing_practices }}</p>
+                {% endif %}
+            </div>
+
+            <div class="producer-recipe-actions">
+                <a href="{% url 'edit_farm_story' story.id %}" class="nav-link">Edit</a>
+                <form method="post" action="{% url 'delete_farm_story' story.id %}" class="nav-inline-form">
+                    {% csrf_token %}
+                    <button type="submit" class="nav-link-btn" onclick="return confirm('Delete this farm story?')">Delete</button>
+                </form>
+            </div>
+        </div>
+    {% endfor %}
+{% else %}
+    <p>You have no farm stories yet.</p>
+{% endif %}
+{% endblock %}

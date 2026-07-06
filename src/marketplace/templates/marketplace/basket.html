@@ -199,6 +199,34 @@
                     </div>
                 </div>
 
+                <div class="auth-field-group basket-recurring-checkout">
+                    <label class="basket-recurring-label" for="{{ form.is_bulk_order.id_for_label }}">
+                        {{ form.is_bulk_order }}
+                        <span>{{ form.is_bulk_order.label }}</span>
+                    </label>
+                    <p class="auth-subtitle">Use this for community groups, restaurants, clubs, and other larger shared orders.</p>
+
+                    <div id="basket-bulk-fields" {% if not form.is_bulk_order.value %}style="display: none;"{% endif %}>
+                        <div class="auth-field-group">
+                            <label class="auth-label" for="{{ form.group_name.id_for_label }}">{{ form.group_name.label }}</label>
+                            {{ form.group_name }}
+                            {% for error in form.group_name.errors %}<p class="field-error-msg">{{ error }}</p>{% endfor %}
+                        </div>
+
+                        <div class="auth-field-group">
+                            <label class="auth-label" for="{{ form.group_member_count.id_for_label }}">{{ form.group_member_count.label }}</label>
+                            {{ form.group_member_count }}
+                            {% for error in form.group_member_count.errors %}<p class="field-error-msg">{{ error }}</p>{% endfor %}
+                        </div>
+
+                        <div class="auth-field-group">
+                            <label class="auth-label" for="{{ form.delivery_instructions.id_for_label }}">{{ form.delivery_instructions.label }}</label>
+                            {{ form.delivery_instructions }}
+                            {% for error in form.delivery_instructions.errors %}<p class="field-error-msg">{{ error }}</p>{% endfor %}
+                        </div>
+                    </div>
+                </div>
+
                 {% if not stripe_enabled %}
                 <!-- CARD FIELDS ONLY SHOWN WHEN STRIPE IS NOT ACTIVE (LOCAL FALLBACK FLOW) -->
 
@@ -295,6 +323,8 @@
         const summaryDelivery = document.getElementById('recurring-summary-delivery');
         const summaryDate = document.getElementById('recurring-summary-date');
         const weekdayLabels = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+        const bulkCheckbox = document.getElementById('{{ form.is_bulk_order.id_for_label }}');
+        const bulkFields = document.getElementById('basket-bulk-fields');
 
         if (!deliveryDateInput || !recurringCheckbox || !recurringFields) return;
 
@@ -372,6 +402,13 @@
 
         updateUI();
         recurringCheckbox.addEventListener('change', updateUI);
+        if (bulkCheckbox && bulkFields) {
+            function updateBulkFields() {
+                bulkFields.style.display = bulkCheckbox.checked ? '' : 'none';
+            }
+            updateBulkFields();
+            bulkCheckbox.addEventListener('change', updateBulkFields);
+        }
         deliveryDateInput.addEventListener('change', updateUI);
         deliveryDateInput.addEventListener('input', updateUI);
         if (recurrenceFrequency) recurrenceFrequency.addEventListener('change', updateUI);

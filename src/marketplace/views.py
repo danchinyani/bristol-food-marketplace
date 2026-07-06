@@ -4,14 +4,11 @@ from django.contrib import messages
 from django.contrib.auth.views import PasswordChangeView
 from django.conf import settings
 from decimal import Decimal, InvalidOperation
-from django.db.models import Q
 from django.urls import reverse_lazy
-from .models import Producer, Customer, Product, BasketItem, CustomerOrder, OrderItem, RecurringOrder, RecurringOrderItem, Notification, Recipe, RecipeImage
-from .forms import CustomerSignupForm, ProducerSignupForm, ProductForm, ProducerBioForm, CheckoutForm, RecipeForm
 from django.db.models import Q, Sum
 from django.contrib.auth.models import User
-from .models import Producer, Customer, Product, BasketItem, CustomerOrder, OrderItem, RecurringOrder, RecurringOrderItem, Notification, ProductReview
-from .forms import CustomerSignupForm, ProducerSignupForm, ProductForm, ProducerBioForm, CheckoutForm, ChangeEmailForm, ChangePostcodeForm
+from .models import Producer, Customer, Product, BasketItem, CustomerOrder, OrderItem, RecurringOrder, RecurringOrderItem, Notification, Recipe, RecipeImage, ProductReview, FarmStory
+from .forms import CustomerSignupForm, ProducerSignupForm, ProductForm, ProducerBioForm, CheckoutForm, RecipeForm, ChangeEmailForm, ChangePostcodeForm, FarmStoryForm
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from django.http import HttpResponse
@@ -128,6 +125,10 @@ def _create_customer_order_from_basket(customer_profile, basket_items, form_clea
         card_holder_name=form_cleaned_data.get('card_holder_name') or 'Stripe Checkout',
         card_number_last4=(form_cleaned_data.get('card_number', '')[-4:] or '4242'),
         total_price=total,
+        is_bulk_order=form_cleaned_data.get('is_bulk_order', False),
+        group_name=form_cleaned_data.get('group_name', ''),
+        group_member_count=form_cleaned_data.get('group_member_count'),
+        delivery_instructions=form_cleaned_data.get('delivery_instructions', ''),
     )
 
     for item in basket_items:
@@ -687,10 +688,14 @@ def producer_bio(request):
 @login_required
 def producer_bio_public(request, producer_id):
     producer = get_object_or_404(Producer, id=producer_id)
+    farm_stories = producer.farm_stories.filter(published=True)
     return render(
         request,
         'marketplace/producer_bio_public.html',
-        {'producer': producer}
+        {
+            'producer': producer,
+            'farm_stories': farm_stories,
+        }
     )
 
 
@@ -1948,6 +1953,101 @@ def recipe_detail(request, recipe_id):
             'recipe': recipe,
             'linked_products': linked_products,
         }
+    )
+
+
+@login_required
+def add_farm_story(request):
+    producer_profile = _get_logged_in_producer(request.user)
+    if producer_profile is None:
+        return redirect('home')
+
+    producer_stories = FarmStory.objects.filter(producer=producer_profile)
+
+    if request.method == 'POST':
+        form = FarmStoryForm(request.POST)
+        if form.is_valid():
+            story = form.save(commit=False)
+            story.producer = producer_profile
+            story.save()
+            messages.success(request, f'Farm story "{story.title}" saved successfully.')
+            return redirect('add_farm_story')
+    else:
+        form = FarmStoryForm()
+
+    return render(
+        request,
+        'marketplace/producer_add_farm_story.html',
+        {
+            'form': form,
+            'producer_stories': producer_stories,
+        }
+    )
+
+
+@login_required
+def edit_farm_story(request, story_id):
+    producer_profile = _get_logged_in_producer(request.user)
+    if producer_profile is None:
+        return redirect('home')
+
+    story = get_object_or_404(FarmStory, id=story_id, producer=producer_profile)
+
+    if request.method == 'POST':
+        form = FarmStoryForm(request.POST, instance=story)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Farm story "{story.title}" updated.')
+            return redirect('add_farm_story')
+    else:
+        form = FarmStoryForm(instance=story)
+
+    return render(
+        request,
+        'marketplace/producer_edit_farm_story.html',
+        {
+            'form': form,
+            'story': story,
+        }
+    )
+
+
+@login_required
+def delete_farm_story(request, story_id):
+    producer_profile = _get_logged_in_producer(request.user)
+    if producer_profile is None:
+        return redirect('home')
+
+    story = get_object_or_404(FarmStory, id=story_id, producer=producer_profile)
+
+    if request.method == 'POST':
+        story.delete()
+        messages.success(request, f'Farm story "{story.title}" deleted.')
+
+    return redirect('add_farm_story')
+
+
+@login_required
+def farm_story_list(request):
+    stories = FarmStory.objects.filter(published=True).select_related('producer')
+    return render(
+        request,
+        'marketplace/farm_story_list.html',
+        {'stories': stories}
+    )
+
+
+@login_required
+def farm_story_detail(request, story_id):
+    story = get_object_or_404(
+        FarmStory.objects.select_related('producer'),
+        id=story_id,
+        published=True,
+    )
+    return render(
+        request,
+        'marketplace/farm_story_detail.html',
+        {'story': story}
     )
 # ADMIN REPORT PDF EXPORT VIEW - GENERATES A PDF VERSION OF A SELECTED REPORT
 @login_required

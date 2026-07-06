@@ -7,7 +7,7 @@ Deadline: 13 July 2026 before 14:00 UK time.
 - [x] Docker stack runs with web, PostgreSQL, Redis, Celery, and Adminer
 - [x] App opens at `http://localhost:8001`
 - [x] Demo data can be loaded with `docker compose exec web python src/manage.py seed_data`
-- [x] Formal Django tests pass: 13/13
+- [x] Formal Django tests pass: 15/15
 - [x] Test-case evidence matrix created: `docs/task2-test-evidence.md`
 - [x] Resit brief checked: test cases remain identical to original assessment
 - [x] Solo resit position confirmed: group size can be 1 to 5 members
@@ -39,10 +39,10 @@ Deadline: 13 July 2026 before 14:00 UK time.
 
 - [x] TC-013 food miles
 - [x] TC-014 organic filtering
-- [~] TC-017 community group bulk orders - normal basket supports larger quantities, but there is no separate community-group account type
+- [x] TC-017 community group bulk orders - dedicated checkout fields capture group name, people supplied, and bulk delivery notes
 - [x] TC-018 recurring restaurant orders
 - [x] TC-019 surplus produce discounts
-- [~] TC-020 recipes and farm stories - recipes and producer bios exist, but there is no separate story module
+- [x] TC-020 recipes and farm stories - recipes plus dedicated producer farm stories are implemented
 - [x] TC-023 low stock notifications
 - [x] TC-024 product reviews
 
@@ -63,4 +63,4 @@ Deadline: 13 July 2026 before 14:00 UK time.
 4. Producer demo with `prod1 / producer1`: products, inventory, allergens, seasonal availability, surplus discounts, incoming/completed orders, settlements, recipes, bio, notifications.
 5. Admin demo with `admin1 / admin123`: dashboard, profiles, orders, reports, commission.
 6. Run `docker compose exec -e USE_SQLITE_FOR_TESTS=1 web python src/manage.py test marketplace`.
-7. Explain partial evidence for TC-017 and TC-020 honestly.
+7. Demonstrate TC-017 community group checkout and TC-020 farm stories directly.

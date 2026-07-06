@@ -16,5 +16,6 @@ Thumbs.db
 media/
 staticfiles/
 *.log
+docker-build-context.tar
 docs/*.pdf
 docs/*.docx

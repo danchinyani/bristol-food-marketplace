@@ -29,6 +29,16 @@
         <p class="producer-product-meta">
             <strong>Preferred Delivery Date:</strong> {{ order.preferred_delivery_date|date:"d M Y" }}
         </p>
+        {% if order.is_bulk_order %}
+            <div class="producer-panel">
+                <h3 class="basket-checkout-title">Community Group Order</h3>
+                <p class="producer-product-meta"><strong>Group:</strong> {{ order.group_name }}</p>
+                <p class="producer-product-meta"><strong>People supplied:</strong> {{ order.group_member_count }}</p>
+                {% if order.delivery_instructions %}
+                    <p class="producer-product-meta"><strong>Bulk delivery notes:</strong> {{ order.delivery_instructions }}</p>
+                {% endif %}
+            </div>
+        {% endif %}
 
         <!-- MASKED CARD DETAILS FOR REFERENCE -->
         <p class="producer-product-meta">

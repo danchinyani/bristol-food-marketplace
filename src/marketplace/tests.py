@@ -5,7 +5,7 @@ from django.urls import reverse
 from datetime import date, timedelta
 
 from .forms import CheckoutForm, build_delivery_day_choices
-from .models import Customer, Producer, Product, BasketItem, CustomerOrder, Notification, RecurringOrder, RecurringOrderUpcomingItem
+from .models import Customer, Producer, Product, BasketItem, CustomerOrder, Notification, RecurringOrder, RecurringOrderUpcomingItem, FarmStory
 from .tasks import process_due_recurring_orders
 
 
@@ -487,3 +487,116 @@ class RecurringOrderFlowTests(TestCase):
         completed_orders_response = self.client.get(reverse('producer_completed_orders'))
         self.assertContains(completed_orders_response, f'Order #{generated_order.id}')
         self.assertContains(completed_orders_response, recurring_order.get_delivery_schedule_display())
+
+
+class CommunityBulkOrderTests(TestCase):
+    def setUp(self):
+        self.customer_user = User.objects.create_user(username='bulk_customer', password='testpass123')
+        self.customer = Customer.objects.create(
+            user=self.customer_user,
+            name='Community Buyer',
+            email='bulk@example.com',
+            address='12 Community Hall',
+            postcode='BS18AA',
+        )
+        self.producer_user = User.objects.create_user(username='bulk_producer', password='testpass123')
+        self.producer = Producer.objects.create(
+            user=self.producer_user,
+            business_name='Bulk Veg Farm',
+            contact_name='Bea Grower',
+            email='bea@example.com',
+            business_address='4 Field Road',
+            postcode='BS29BB',
+        )
+        self.product = Product.objects.create(
+            producer=self.producer,
+            name='Community Veg Box',
+            category='VEG',
+            description='Large seasonal vegetable box',
+            price='12.00',
+            unit='per box',
+            stock_quantity=25,
+            is_organic=True,
+        )
+
+    def test_customer_can_place_community_group_bulk_order(self):
+        BasketItem.objects.create(customer=self.customer, product=self.product, quantity=6)
+        self.client.login(username='bulk_customer', password='testpass123')
+
+        response = self.client.post(
+            reverse('checkout'),
+            {
+                'preferred_delivery_date': (date.today() + timedelta(days=3)).isoformat(),
+                'is_bulk_order': 'on',
+                'group_name': 'Easton Community Kitchen',
+                'group_member_count': '18',
+                'delivery_instructions': 'Pack into three labelled crates for collection.',
+                'card_holder_name': 'Community Buyer',
+                'card_number': '4242424242424242',
+                'card_expiry': '12/30',
+                'card_cvv': '123',
+            },
+        )
+
+        order = CustomerOrder.objects.get(customer=self.customer)
+        self.assertRedirects(response, reverse('order_confirmation', args=[order.id]))
+        self.assertTrue(order.is_bulk_order)
+        self.assertEqual(order.group_name, 'Easton Community Kitchen')
+        self.assertEqual(order.group_member_count, 18)
+        self.assertIn('labelled crates', order.delivery_instructions)
+        self.assertEqual(order.items.get(product=self.product).quantity, 6)
+
+        confirmation = self.client.get(reverse('order_confirmation', args=[order.id]))
+        self.assertContains(confirmation, 'Community Group Order')
+        self.assertContains(confirmation, 'Easton Community Kitchen')
+
+
+class FarmStoryTests(TestCase):
+    def setUp(self):
+        self.producer_user = User.objects.create_user(username='story_producer', password='testpass123')
+        self.customer_user = User.objects.create_user(username='story_customer', password='testpass123')
+        self.producer = Producer.objects.create(
+            user=self.producer_user,
+            business_name='Story Farm',
+            contact_name='Sam Story',
+            email='story@example.com',
+            business_address='9 Orchard Lane',
+            postcode='BS31CC',
+        )
+        self.customer = Customer.objects.create(
+            user=self.customer_user,
+            name='Story Reader',
+            email='reader@example.com',
+            address='3 Reading Street',
+            postcode='BS42DD',
+        )
+
+    def test_producer_can_publish_farm_story_for_customers(self):
+        self.client.login(username='story_producer', password='testpass123')
+        response = self.client.post(
+            reverse('add_farm_story'),
+            {
+                'title': 'Harvest Week on the Orchard',
+                'story': 'We invite customers behind the scenes of our apple harvest.',
+                'growing_practices': 'Low spray orchard care and local compost.',
+                'published': 'on',
+            },
+        )
+
+        self.assertRedirects(response, reverse('add_farm_story'))
+        story = FarmStory.objects.get(producer=self.producer)
+        self.assertEqual(story.title, 'Harvest Week on the Orchard')
+        self.assertTrue(story.published)
+
+        self.client.login(username='story_customer', password='testpass123')
+        list_response = self.client.get(reverse('farm_story_list'))
+        self.assertContains(list_response, 'Harvest Week on the Orchard')
+        self.assertContains(list_response, 'Story Farm')
+
+        detail_response = self.client.get(reverse('farm_story_detail', args=[story.id]))
+        self.assertContains(detail_response, 'behind the scenes')
+        self.assertContains(detail_response, 'Low spray orchard care')
+
+        producer_profile_response = self.client.get(reverse('producer_bio_public', args=[self.producer.id]))
+        self.assertContains(producer_profile_response, 'Farm Stories')
+        self.assertContains(producer_profile_response, 'Harvest Week on the Orchard')

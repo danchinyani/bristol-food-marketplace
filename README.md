@@ -68,10 +68,10 @@ docker compose exec -e USE_SQLITE_FOR_TESTS=1 web python src/manage.py test mark
 Latest verified result:
 
 ```text
-Found 13 test(s).
+Found 15 test(s).
 System check identified no issues (0 silenced).
-.............
-Ran 13 tests in 9.591s
+...............
+Ran 15 tests in 6.873s
 OK
 ```
 
