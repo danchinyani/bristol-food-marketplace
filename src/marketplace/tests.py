@@ -550,6 +550,42 @@ class CommunityBulkOrderTests(TestCase):
         self.assertContains(confirmation, 'Community Group Order')
         self.assertContains(confirmation, 'Easton Community Kitchen')
 
+    def test_new_customer_order_appears_for_producer_with_alert(self):
+        BasketItem.objects.create(customer=self.customer, product=self.product, quantity=2)
+        self.client.login(username='bulk_customer', password='testpass123')
+
+        checkout_response = self.client.post(
+            reverse('checkout'),
+            {
+                'preferred_delivery_date': (date.today() + timedelta(days=3)).isoformat(),
+                'card_holder_name': 'Community Buyer',
+                'card_number': '4242424242424242',
+                'card_expiry': '12/30',
+                'card_cvv': '123',
+            },
+        )
+
+        order = CustomerOrder.objects.get(customer=self.customer)
+        self.assertRedirects(checkout_response, reverse('order_confirmation', args=[order.id]))
+        self.assertTrue(
+            Notification.objects.filter(
+                user=self.producer_user,
+                is_read=False,
+                message__contains=f'New order #{order.id}',
+            ).exists()
+        )
+
+        self.client.logout()
+        self.client.login(username='bulk_producer', password='testpass123')
+
+        home_response = self.client.get(reverse('home'))
+        self.assertContains(home_response, 'Alerts (1)')
+
+        producer_orders_response = self.client.get(reverse('producer_orders'))
+        self.assertContains(producer_orders_response, f'Order #{order.id}')
+        self.assertContains(producer_orders_response, self.customer.name)
+        self.assertContains(producer_orders_response, self.product.name)
+
 
 class FarmStoryTests(TestCase):
     def setUp(self):

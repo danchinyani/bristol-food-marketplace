@@ -1,7 +1,7 @@
 # CONTEXT PROCESSOR TO MAKE THE BASKET ITEM COUNT AVAILABLE IN EVERY TEMPLATE
 # THIS ALLOWS THE BASKET ICON IN THE TOP BAR TO DISPLAY THE CURRENT COUNT GLOBALLY
 
-from .models import BasketItem
+from .models import BasketItem, Notification
 from django.conf import settings
 
 
@@ -14,6 +14,10 @@ def basket_count(request):
     if request.user.is_authenticated:
         # CHECK IF THE USER IS A STAFF/SUPERUSER (ADMIN)
         is_admin = request.user.is_staff or request.user.is_superuser
+        notification_count = Notification.objects.filter(
+            user=request.user,
+            is_read=False,
+        ).count()
 
         try:
             # ATTEMPT TO GET THE CUSTOMER PROFILE LINKED TO THE LOGGED-IN USER
@@ -33,6 +37,7 @@ def basket_count(request):
     else:
         # UNAUTHENTICATED USERS HAVE NO BASKET
         count = 0
+        notification_count = 0
 
     stripe_publishable_key = getattr(settings, 'STRIPE_PUBLISHABLE_KEY', '')
     stripe_enabled = bool(stripe_publishable_key)
@@ -44,6 +49,7 @@ def basket_count(request):
         'is_customer': is_customer,
         'is_producer': is_producer,
         'is_admin': is_admin,
+        'notification_count': notification_count,
         'stripe_enabled': stripe_enabled,
         'stripe_test_mode': stripe_test_mode,
     }
