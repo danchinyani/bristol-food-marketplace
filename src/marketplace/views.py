@@ -14,6 +14,13 @@ from reportlab.pdfgen import canvas
 from django.http import HttpResponse
 from datetime import date, timedelta
 from .utils import calculate_food_miles
+import json
+import math
+import re
+from functools import lru_cache
+from urllib.error import URLError
+from urllib.parse import quote
+from urllib.request import urlopen
 
 try:
     import stripe
@@ -224,6 +231,70 @@ class CustomPasswordChangeView(PasswordChangeView):
         messages.success(self.request, 'Your password has been updated successfully.')
         return super().form_valid(form)
 
+POSTCODE_PATTERN = re.compile(r"[A-Z]{1,2}\d[A-Z\d]?\s*\d[A-Z]{2}", re.IGNORECASE)
+
+
+def extract_postcode(text):
+    if not text:
+        return None
+    match = POSTCODE_PATTERN.search(text)
+    return match.group(0).upper().replace(" ", "")
+
+
+@lru_cache(maxsize=128)
+def get_postcode_coordinates(postcode):
+    if not postcode:
+        return None
+
+    url = f"https://api.postcodes.io/postcodes/{quote(postcode)}"
+
+    try:
+        with urlopen(url, timeout=3) as response:
+            payload = json.loads(response.read().decode("utf-8"))
+    except (URLError, TimeoutError, ValueError):
+        return None
+
+    if payload.get("status") != 200:
+        return None
+
+    result = payload.get("result") or {}
+    latitude = result.get("latitude")
+    longitude = result.get("longitude")
+
+    if latitude is None or longitude is None:
+        return None
+
+    return float(latitude), float(longitude)
+
+
+def distance_in_miles(origin, destination):
+    lat1, lon1 = origin
+    lat2, lon2 = destination
+
+    radius_miles = 3958.8
+    phi1 = math.radians(lat1)
+    phi2 = math.radians(lat2)
+    delta_phi = math.radians(lat2 - lat1)
+    delta_lambda = math.radians(lon2 - lon1)
+
+    a = (
+        math.sin(delta_phi / 2) ** 2
+        + math.cos(phi1) * math.cos(phi2) * math.sin(delta_lambda / 2) ** 2
+    )
+    return radius_miles * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+
+
+def calculate_food_miles(customer_address, producer_address):
+    customer_postcode = extract_postcode(customer_address)
+    producer_postcode = extract_postcode(producer_address)
+
+    customer_coordinates = get_postcode_coordinates(customer_postcode)
+    producer_coordinates = get_postcode_coordinates(producer_postcode)
+
+    if not customer_coordinates or not producer_coordinates:
+        return None
+
+    return round(distance_in_miles(customer_coordinates, producer_coordinates), 1)
 
 def home(request):
     # REDIRECT ADMIN USERS TO THEIR OWN DASHBOARD ON LOGIN
@@ -757,12 +828,13 @@ def _build_basket_food_miles_context(customer_profile, basket_items):
     miles_cache = {}
 
     for item in basket_items:
-        producer_postcode = item.product.producer.postcode
-        cache_key = (customer_profile.postcode, producer_postcode)
+        producer_postcode = (item.product.producer.postcode or "").strip()
+        customer_postcode = (customer_profile.postcode or "").strip()
+        cache_key = (customer_postcode, producer_postcode)
 
         if cache_key not in miles_cache:
             miles_cache[cache_key] = calculate_food_miles(
-                customer_profile.postcode,
+                customer_postcode,
                 producer_postcode
             )
 
