@@ -158,14 +158,15 @@ def process_due_recurring_orders():
             recurring_order.next_order_date = _advance_recurring_date(scheduled_for, recurring_order.frequency)
             recurring_order.save(update_fields=['next_order_date'])
 
-        create_notification.delay(
-            recurring_order.customer.user.id,
-            (
+        Notification.objects.create(
+            user=recurring_order.customer.user,
+            message=(
                 f'Recurring order #{order.id} has been processed on {scheduled_for} for delivery {delivery_date}. '
                 f'Receipt total: £{order.total_price}.'
-            )
+            ),
+            is_read=False,
         )
-
+        
         for producer_user_id, lines in producer_notifications.items():
             create_notification.delay(
                 producer_user_id,
