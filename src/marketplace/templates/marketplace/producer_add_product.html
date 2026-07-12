@@ -93,8 +93,23 @@
                             </div>
 
                             <div class="producer-product-header">
-                                <h3>{{ product.name }}</h3>
-                                <span class="producer-product-price">£{{ product.price }} / {{ product.unit }}</span>
+                            <h3>
+                                {{ product.name }}
+                                {% if product.is_surplus %}
+                                    <span class="status-badge surplus-badge">
+                                        Surplus - {{ product.discount_percent }}% off
+                                    </span>
+                                {% endif %}
+                            </h3>
+
+                            <span class="producer-product-price">
+                                {% if product.is_surplus %}
+                                    <span class="old-price">£{{ product.price }}</span>
+                                    £{{ product.discounted_price }} / {{ product.unit }}
+                                {% else %}
+                                    £{{ product.price }} / {{ product.unit }}
+                                {% endif %}
+                            </span>
                             </div>
 
                             <p class="producer-product-meta">

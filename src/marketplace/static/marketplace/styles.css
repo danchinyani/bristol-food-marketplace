@@ -2220,3 +2220,21 @@ a.admin-quick-link:hover {
     display: flex;
     gap: 20px;
 }
+
+.surplus-badge {
+    display: inline-block;
+    margin-left: 0.5rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: 999px;
+    background: #fff3cd;
+    color: #7a4b00;
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.old-price {
+    margin-right: 0.35rem;
+    color: #7b7b7b;
+    text-decoration: line-through;
+    font-weight: 600;
+}
